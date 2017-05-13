@@ -26,8 +26,6 @@ module.exports = {
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
             minChunks: Infinity
-        }),
-
-        // new webpack.optimize.UglifyJsPlugin()
+        })
     ]
 };

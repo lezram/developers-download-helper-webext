@@ -1,13 +1,13 @@
 {
   "name": "github-downloader-chrome",
   "version": "0.0.1",
-  "description": "A chrome extension for easy file/folder download from github.",
+  "description": "Chrome extension to download files and folders from GitHub via context menu.",
   "scripts": {
     "build": "./node_modules/.bin/webpack",
     "watch": "./node_modules/.bin/webpack -w"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "gasserus",
+  "license": "MIT",
   "devDependencies": {
     "@types/chrome": "0.0.46",
     "@types/jszip": "0.0.32",
