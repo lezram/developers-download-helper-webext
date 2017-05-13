@@ -4,9 +4,9 @@ export default class NotificationHelper {
     public static create(title:string, message:string, duration=5, success=false){
         let id: string = "ID" + Math.random().toString(16).slice(2) +"-"+ (new Date()).getTime();
 
-        let icon = "icon-48.png";
-        if(success){
-            icon= "icon-48-green.png";
+        let icon = "images/icon-48.png";
+        if(!success){
+            icon= "images/icon-red-48.png";
         }
 
         chrome.notifications.create(id, {

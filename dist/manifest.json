@@ -1,15 +1,18 @@
 {
-    "name": "GitHub Downloader",
-    "version": "0.1",
-    "description": "Download files and folders from GitHub via context menu",
+    "manifest_version": 2,
+    "name": "GitHub Download Helper",
+    "short_name": "GDH",
+    "version": "0.0.1",
+    "description": "Download files and folders from GitHub via context menu.",
+    "homepage_url": "https://github.com/gasserus/github-download-helper-chrome",
     "icons": {
-        "19": "icon-19.png",
-        "48": "icon-48.png",
-        "128": "icon-128.png"
+        "16": "images/icon-16.png",
+        "48": "images/icon-48.png",
+        "128": "images/icon-128.png"
     },
-    "page_action": {
-        "default_icon": "icon-19.png",
-        "default_title": "GitHub Downloader"
+    "browser_action": {
+        "default_icon": "images/icon-48.png",
+        "default_title": "GitHub Download Helper"
     },
     "background": {
         "scripts": [
@@ -27,6 +30,5 @@
         "storage",
         "notifications",
         "<all_urls>"
-    ],
-    "manifest_version": 2
+    ]
 }

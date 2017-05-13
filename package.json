@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Chrome extension to download files and folders from GitHub via context menu.",
   "scripts": {
+    "zip":  "npm run build && bestzip dist.zip dist",
     "build": "./node_modules/.bin/webpack",
     "watch": "./node_modules/.bin/webpack -w"
   },
@@ -11,6 +12,7 @@
   "devDependencies": {
     "@types/chrome": "0.0.46",
     "@types/jszip": "0.0.32",
+    "bestzip": "^1.1.4",
     "ts-loader": "~2.0.3",
     "typescript": "^2.3.2",
     "webpack": "~2.4.1"
