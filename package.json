@@ -1,0 +1,21 @@
+{
+  "name": "github-downloader-chrome",
+  "version": "0.0.1",
+  "description": "A chrome extension for easy file/folder download from github.",
+  "scripts": {
+    "build": "./node_modules/.bin/webpack",
+    "watch": "./node_modules/.bin/webpack -w"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chrome": "0.0.46",
+    "@types/jszip": "0.0.32",
+    "ts-loader": "~2.0.3",
+    "typescript": "^2.3.2",
+    "webpack": "~2.4.1"
+  },
+  "dependencies": {
+    "jszip": "^3.1.3"
+  }
+}

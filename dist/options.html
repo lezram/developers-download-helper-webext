@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Github Downloader Options</title>
+    <script src="js/vendor.js"></script>
+</head>
+<body>
+    Domains on which this plugin should be activated
+    (<a href="https://developer.chrome.com/extensions/match_patterns">Chrome match patterns</a>):<br>
+    <input type="text" id="urls" title="URL Pattern" style="width: 100%;">
+
+    <br>
+    Show in context menu:<br>
+    <label>
+      <input type="checkbox" id="saveas">
+      "Save as..."
+    </label>
+    <label>
+      <input type="checkbox" id="download">
+      "Download"
+    </label>
+
+    <div id="status"></div>
+    <button id="save">Save</button>
+
+    <script src="./js/options.js"></script>
+</body>
+</html>
