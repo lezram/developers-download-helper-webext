@@ -82,14 +82,43 @@ export default class FileLoader {
 
             if (match && fnMatchLength(match) >= 5) {
                 link["pathname"] = link["pathname"].replace(FileLoader.GITHUB_URL_REGEX, "/$1/$2/" + fileType + "/$4/$5");
+                resolve(link["href"]);
             } else if (match && fnMatchLength(match) == 3) {
-                // FIX: Support all default branches
-                link["pathname"] += "/" + fileType + "/master";
-            } else {
+                link["pathname"] += "/" + fileType + "/";
+
+                function resolveBranchName(branchName: string) {
+                    if(!branchName) {
+                        console.warn("Could not determine default branchname - defaulting to \"master\"");
+                        branchName = "master";
+                    }
+                    link["pathname"] += branchName;
+                    resolve(link["href"]);
+                }
+
+                let apiURL = "https://api.github.com/";
+                if(link["host"] !== "github.com") {
+                    apiURL = link["origin"] + "/api/v3/";
+                }
+
+                let xhr = new XMLHttpRequest();
+                xhr.open("GET", apiURL + "repos/" + match[1] + "/" + match[2]);
+                xhr.responseType = 'json';
+                xhr.onload = function () {
+                    let response = xhr.response;
+                    if (!response) {
+                        resolveBranchName(undefined);
+                    }
+                    resolveBranchName(response["default_branch"]);
+                };
+                xhr.onerror = function () {
+                    resolveBranchName(undefined);
+                };
+                xhr.send();
+            }
+            else {
                 resolve(null);
             }
 
-            resolve(link["href"]);
         });
     }
 
