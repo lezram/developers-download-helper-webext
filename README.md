@@ -1,6 +1,8 @@
 # GitHub Download Helper - Chrome Extension
 Chrome extension to download files and folders from GitHub via context menu.
 
+[Download from Google Chrome Webstore](https://chrome.google.com/webstore/detail/github-download-helper/apchbjkblfhmkohghpnhidldebmpmjnn)
+
 ## Usage
 
 ### Options
