@@ -3,17 +3,46 @@
   "version": "0.0.1",
   "description": "Chrome extension to download files and folders from GitHub via context menu.",
   "scripts": {
-    "zip":  "npm run build && bestzip dist.zip dist",
+    "zip": "npm run build && bestzip dist.zip dist",
     "build": "./node_modules/.bin/webpack",
-    "watch": "./node_modules/.bin/webpack -w"
+    "watch": "./node_modules/.bin/webpack -w",
+    "test": "mocha -r ts-node/register tests/**/*.test.ts",
+    "coverage": "nyc mocha tests/**/*.test.ts"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "**/*.test.ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text-summary",
+      "lcov"
+    ],
+    "report-dir": "./coverage-report"
   },
   "author": "gasserus",
   "license": "MIT",
   "devDependencies": {
+    "@types/chai": "^3.5.2",
     "@types/chrome": "0.0.46",
+    "@types/jsdom": "^2.0.30",
     "@types/jszip": "0.0.32",
+    "@types/mocha": "^2.2.41",
+    "@types/sinon": "^2.2.2",
     "bestzip": "^1.1.4",
+    "chai": "^3.5.0",
+    "jsdom": "^10.1.0",
+    "mocha": "^3.4.1",
+    "nyc": "^10.3.2",
+    "sinon": "^2.2.0",
     "ts-loader": "~2.0.3",
+    "ts-node": "^3.0.4",
     "typescript": "^2.3.2",
     "webpack": "~2.4.1"
   },

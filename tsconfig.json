@@ -4,12 +4,10 @@
         "module": "commonjs",
         "removeComments": false,
         "noImplicitAny": false,
-        "outDir": "dist/js"
+        "outDir": "dist/js",
+        "experimentalDecorators": true
     },
     "include": [
         "src/**/*.ts"
-    ],
-    "exclude": [
-        "node_modules"
     ]
 }

@@ -4,3 +4,5 @@ npm-debug.log
 dist/js
 dist.zip
 tmp/
+coverage-report/
+.nyc_output
