@@ -32,6 +32,9 @@ export default class FileDownloader {
             if(githubURL.fileType !== FileType.ZIPBALL && githubURL.fileType !== FileType.TREE){
                 filename = githubURL.filePath.split("/").pop().replace(/^[.]+/g,"");
             }
+            else if(githubURL.fileType === FileType.TREE){
+                filename = (githubURL.filePath.split("/").pop())+".zip";
+            }
 
             chrome.downloads.download({
                 filename: filename,

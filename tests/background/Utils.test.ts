@@ -29,20 +29,20 @@ describe('mustache()', () => {
 });
 
 
-describe('first()', () => {
-    it('should return the first element', () => {
+describe('getFirstKey()', () => {
+    it('should return the getFirstKey element', () => {
         let data: Object = {
             "test/": "data",
             "bved": 2,
             "asd": 3
         };
 
-        let result = Utils.first(data);
+        let result = Utils.getFirstKey(data);
         expect(result).to.equal("test/");
     });
 
     it('return null', () => {
-        let result = Utils.first({});
+        let result = Utils.getFirstKey({});
         expect(result).to.equal(null);
     });
 });

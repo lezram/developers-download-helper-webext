@@ -114,7 +114,7 @@ export default class GithubURL {
 
                 let zipLoader = new ZIP();
                 zipLoader.loadAsync(arrayBuffer).then((zip) => {
-                    let foldernameInZip = Utils.first(zip.files) + this._filePath;
+                    let foldernameInZip = Utils.getFirstKey(zip.files) + this._filePath;
 
                     if (!foldernameInZip) {
                         rejectParent(null);

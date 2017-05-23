@@ -21,11 +21,13 @@ export class UrlBuilder {
 
     public slash(name: string): UrlBuilder {
 
-        let replacer = "/$1";
-        if (this.link.pathname === '/') {
-            replacer = "$1";
+        let pathName = (name || "").replace(/^[/]+/g, "").replace(/[/]+$/g, "");
+
+        if (this.link.pathname !== '/') {
+            pathName = "/"+pathName;
         }
-        this.link.pathname += (name || "").replace(/^[/]*([^/]+)[/]*$/g, replacer);
+
+        this.link.pathname += pathName;
 
         return this;
     }

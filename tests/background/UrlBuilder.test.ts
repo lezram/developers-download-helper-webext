@@ -16,7 +16,13 @@ describe('UrlBuilder()', () => {
     it('with path and trailing slash', () => {
         let url = new UrlBuilder("http://test.de/123").slash("test").slash("").build();
 
-        expect("http://test.de/123/test").to.equal(url);
+        expect("http://test.de/123/test/").to.equal(url);
+    });
+
+    it('with path and trailing slash', () => {
+        let url = new UrlBuilder("http://test.de/123").slash("test").slash("master").build();
+
+        expect("http://test.de/123/test/master").to.equal(url);
     });
 
     it('with path by HTMLAnchorElement', () => {

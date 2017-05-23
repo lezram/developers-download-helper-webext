@@ -7,7 +7,7 @@ export class Utils {
         return text;
     };
 
-    public static first(object) {
+    public static getFirstKey(object) {
         let keys = Object.keys(object);
         if (keys.length > 0) {
             return keys[0];
