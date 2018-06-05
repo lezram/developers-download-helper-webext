@@ -3,7 +3,7 @@
     "name": "GitHub Download Helper",
     "short_name": "GDH",
     "version": "0.1.2",
-    "description": "Download files and folders from GitHub via context menu.",
+    "description": "Download files and folders from GitHub or GitLab via context menu.",
     "homepage_url": "https://github.com/gasserus/github-download-helper-chrome",
     "icons": {
         "16": "images/icon-16.png",

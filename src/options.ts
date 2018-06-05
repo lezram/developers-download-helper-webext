@@ -22,8 +22,8 @@ function isPatternValid(url){
     return true;
 }
 
-function save_options() {
-    let urls = (<HTMLInputElement> document.getElementById('urls')).value;
+function get_valid_urls(prefix: string) {
+    let urls = (<HTMLInputElement> document.getElementById(prefix + 'urls')).value;
     let aUrls = urls.replace(" ","").split(",");
 
     let aUrlsToSave = [];
@@ -36,12 +36,19 @@ function save_options() {
             aUrlsToSave.push(aUrls[index]);
         }
     }
+    return aUrlsToSave;
+}
+
+function save_options() {
+    let githubUrls = get_valid_urls('');
+    let gitlabUrls = get_valid_urls('gitlab');
 
     let checkboxSaveAs = (<HTMLInputElement> document.getElementById('saveas')).checked;
     let checkboxDownload = (<HTMLInputElement> document.getElementById('download')).checked;
 
     chrome.storage.sync.set({
-        urls: aUrls,
+        urls: githubUrls,
+        gitlaburls: gitlabUrls,
         contextMenu: {
             saveas: checkboxSaveAs,
             download: checkboxDownload
@@ -58,6 +65,7 @@ function save_options() {
 function restore_options() {
     getStorageValues(function(items) {
         (<HTMLInputElement> document.getElementById('urls')).value = items.urls.toString();
+        (<HTMLInputElement> document.getElementById('gitlaburls')).value = items.gitlaburls.toString();
         (<HTMLInputElement> document.getElementById('saveas')).checked = items.contextMenu.saveas;
         (<HTMLInputElement> document.getElementById('download')).checked  = items.contextMenu.download;
     });
