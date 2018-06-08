@@ -1,17 +1,23 @@
-import FileDownlaoder from "./background/FileDownloader";
+import GitHubFileDownloader from "./background/GitHubFileDownloader";
+import GitLabFileDownloader from "./background/GitLabFileDownloader";
 import CreateProperties = chrome.contextMenus.CreateProperties;
 import getStorageValues from "./helper";
+import OnClickData = chrome.contextMenus.OnClickData;
 
 let contextMenuSaveAs;
 let contextMenuDownload;
 
-let urlPatterns;
+let githubUrlPatterns;
+let gitlabUrlPatterns;
 let contextMenu;
 
 
 chrome.storage.onChanged.addListener(function(changes, namespace) {
     if (changes.urls) {
-        urlPatterns = changes.urls.newValue;
+        githubUrlPatterns = changes.urls.newValue;
+    }
+    if (changes.gitlaburls) {
+        gitlabUrlPatterns = changes.gitlaburls.newValue;
     }
     if (changes.contextMenu) {
         contextMenu = changes.contextMenu.newValue;
@@ -20,44 +26,51 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 });
 
 getStorageValues(function(item) {
-    urlPatterns = item.urls;
+    githubUrlPatterns = item.urls;
+    gitlabUrlPatterns = item.gitlaburls;
     contextMenu = item.contextMenu;
     displayContextMenu();
 });
 
 function displayContextMenu() {
     if (contextMenuSaveAs) {
-        chrome.contextMenus.remove(contextMenuSaveAs);
+        contextMenuSaveAs.forEach(menu => chrome.contextMenus.remove(menu));
     }
 
     if (contextMenu.saveas) {
-        activateContextMenuSaveAs(urlPatterns);
+        contextMenuSaveAs = [
+            activateContextMenuSaveAs(githubUrlPatterns, GitHubFileDownloader.saveAs),
+            activateContextMenuSaveAs(gitlabUrlPatterns, GitLabFileDownloader.saveAs)
+        ];
     }
 
     if (contextMenuDownload) {
-        chrome.contextMenus.remove(contextMenuDownload);
+        contextMenuDownload.forEach(menu => chrome.contextMenus.remove(menu));
     }
 
     if (contextMenu.download) {
-        activateContextMenuDownload(urlPatterns);
+        contextMenuSaveAs = [
+            activateContextMenuDownload(githubUrlPatterns, GitHubFileDownloader.download),
+            activateContextMenuDownload(gitlabUrlPatterns, GitLabFileDownloader.download)
+        ];
     }
 }
 
-function activateContextMenuSaveAs(urls:string[]) {
-    contextMenuSaveAs = chrome.contextMenus.create({
+function activateContextMenuSaveAs(urls:string[], callback:(info: OnClickData, tab: chrome.tabs.Tab) => void) {
+    return chrome.contextMenus.create({
         title: "Save as...",
         documentUrlPatterns: urls,
         contexts: ["link"],
-        onclick: FileDownlaoder.saveAs
+        onclick: callback
     });
 }
 
-function activateContextMenuDownload(urls:string[]) {
+function activateContextMenuDownload(urls:string[], callback:(info: OnClickData, tab: chrome.tabs.Tab) => void) {
     contextMenuDownload = chrome.contextMenus.create({
         title: "Download",
         documentUrlPatterns: urls,
         contexts: ["link"],
-        onclick: FileDownlaoder.download
+        onclick: callback
     });
 }
 

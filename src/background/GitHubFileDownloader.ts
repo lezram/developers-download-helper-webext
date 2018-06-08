@@ -3,10 +3,10 @@ import NotificationHelper from "./NotificationHelper";
 import GithubURL from "./GithubURL";
 import {FileType} from "./FileType";
 
-export default class FileDownloader {
+export default class GitHubFileDownloader {
 
     public static saveAs(info: OnClickData, tab: chrome.tabs.Tab) {
-        FileDownloader.download(info, tab, true);
+        GitHubFileDownloader.download(info, tab, true);
     }
 
     public static download(info: OnClickData, tab: chrome.tabs.Tab, showSaveAs = false) {
