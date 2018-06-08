@@ -13,24 +13,17 @@ export default class GitLabFileDownloader {
             return;
         }
         
-        let regex = /^\/([^\/]+\/[^\/]+)\/?([^\/]+)?\/?([^\/]+)?\/?(.*)?$/u ;
-        
-        let parsed = regex.exec(new URL(info.linkUrl).pathname);
-        let file = {
-            reponame: parsed[1],
-            type: parsed[2],
-            branch: parsed[3],
-            absolutefilename: parsed[4],
-            filename: undefined,
-            path: undefined
+        let parts = new URL(info.linkUrl).pathname.substr(1).split("/");
+        const file = {
+            reponame: parts.slice(0,2).join("/"),
+            type: parts[2],
+            branch: parts[3],
+            absolutefilename: parts.slice(4).join("/"),
+            filename: parts.length > 3 ? parts[parts.length - 1] : "",
+            path: parts.slice(4, parts.length - 1).join("/")
         };
         
-        if(file.absolutefilename) {
-            file.filename = /[^\/]+$/.exec(file.absolutefilename)[0];
-            file.path = file.absolutefilename.substr(0, file.absolutefilename.length - file.filename.length);
-        }
-        
-        if(!file.absolutefilename) {
+        if(file.absolutefilename === "") {
             // https://gitlab.com/gitlab-com/support-forum/issues/3067
             chrome.downloads.download({
                 url: `https://gitlab.com/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/archive.zip`,
