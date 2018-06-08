@@ -91,25 +91,22 @@ export default class GitLabFileDownloader {
         
         // create zip file
         let zip = new ZIP();
-        let promises = blobs.map( object => {
+        let promises = blobs.map( async function(object) {
             let relativeName = object.path.substr(offset);
-            return object.content.then(content => {
-                console.log(`adding ${relativeName}`);
-                return zip.file(relativeName, content);
-            });
+            return zip.file(relativeName, await object.content);
         });
+
+        await Promise.all(promises);
+
         let options = {
             type: "blob",
             mimeType: "application/zip"
         };
-        Promise.all(promises)
-            .then( _ => zip.generateAsync(options) )
-            .then( blob => {
-                chrome.downloads.download({
-                    filename: file.filename + ".zip",
-                    url: URL.createObjectURL(blob),
-                    saveAs: showSaveAs
-                });
-            });
+        let blob = await zip.generateAsync(options);
+        chrome.downloads.download({
+            filename: file.filename + ".zip",
+            url: URL.createObjectURL(blob),
+            saveAs: showSaveAs
+        });
     }
 }
