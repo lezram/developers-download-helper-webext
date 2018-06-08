@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" version="1.0" width="650.000000pt" height="650.000000pt" viewBox="0 0 650.000000 650.000000" preserveAspectRatio="xMidYMid meet" id="svg8" sodipodi:docname="icon-gitlab.svg" inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   <defs id="defs12" />
+   <sodipodi:namedview pagecolor="#ffffff" bordercolor="#666666" borderopacity="1" objecttolerance="10" gridtolerance="10" guidetolerance="10" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:window-width="1920" inkscape:window-height="1017" id="namedview10" showgrid="false" inkscape:zoom="1.6391488" inkscape:cx="361.91391" inkscape:cy="271.18515" inkscape:window-x="-8" inkscape:window-y="-8" inkscape:window-maximized="1" inkscape:current-layer="svg8" />
+   <g transform="translate(0.000000,650.000000) scale(0.100000,-0.100000)" fill="#FCA326" stroke="none" id="g6">
+      <path d="m 2590,2667 v -519 -518 l -522,-2 -522,-3 843,-725 c 464,-399 851,-725 861,-725 10,0 397,326 861,725 l 843,725 -522,3 -522,2 v 518 519 c -1320,0 -1320,0 -1320,0 z" id="path4" inkscape:connector-curvature="0" sodipodi:nodetypes="ccccccsccccccc" />
+   </g>
+   <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+      <g id="gitlab_logo" transform="translate(-280.9, -330)">
+         <g id="g10" transform="translate(999.999975, 587.666648) scale(1, -1) translate(-999.999975, -587.666648) translate(0.000000, 0.999996)">
+            <g id="g16">
+               <g id="g18-Clipped">
+                  <mask id="mask-2" fill="white">
+                     <path id="path-1" d="M0,1173.3333 L1999.99995,1173.3333 L1999.99995,0 L0,0 L0,1173.3333 L0,1173.3333 Z" />
+                  </mask>
+                  <g id="path22" />
+                  <g id="g18" mask="url(#mask-2)">
+                     <g transform="translate(358.666658, 358.666658)">
+                        <g id="g44" transform="translate(0.532000, 0.774933)">
+                           <path d="M491.999988,194.666662 L464.441322,279.481326 L409.82399,447.578655 C407.014656,456.226655 394.778657,456.226655 391.96799,447.578655 L337.349325,279.481326 L155.982663,279.481326 L101.362664,447.578655 C98.5533309,456.226655 86.3173312,456.226655 83.5066646,447.578655 L28.8893326,279.481326 L1.33199997,194.666662 C-1.18266664,186.930662 1.57199996,178.455996 8.1519998,173.674662 L246.665327,0.385333324 L485.179988,173.674662 C491.759988,178.455996 494.513321,186.930662 491.999988,194.666662" id="path46" fill="#FC6D26" />
+                        </g>
+                        <g id="g48" transform="translate(155.197863, 1.160267)">
+                           <path d="M91.9999977,0 L91.9999977,0 L182.683995,279.095993 L1.31599997,279.095993 L91.9999977,0 L91.9999977,0 Z" id="path50" fill="#E24329" />
+                        </g>
+                        <g id="g52" transform="translate(247.197860, 1.160267)">
+                           <g id="path54" />
+                        </g>
+                        <g id="g56" transform="translate(28.531199, 1.160800)">
+                           <path d="M218.666661,0 L127.982663,279.09466 L0.890666644,279.09466 L218.666661,0 L218.666661,0 Z" id="path58" fill="#FC6D26" />
+                        </g>
+                        <g id="g60" transform="translate(247.197860, 1.160800)">
+                           <g id="path62" />
+                        </g>
+                        <g id="g64" transform="translate(0.088533, 0.255867)">
+                           <path d="M29.3333326,279.999993 L29.3333326,279.999993 L1.77466662,195.185328 C-0.738666648,187.449329 2.01466662,178.974662 8.59599979,174.194662 L247.109327,0.905333311 L29.3333326,279.999993 L29.3333326,279.999993 Z" id="path66" fill="#FCA326" />
+                        </g>
+                        <g id="g68" transform="translate(247.197860, 1.160267)">
+                           <g id="path70" />
+                        </g>
+                        <g id="g72" transform="translate(29.421866, 280.255593)">
+                           <path d="M0,0 L127.091997,0 L72.4733315,168.097329 C69.6626649,176.746662 57.4266652,176.746662 54.617332,168.097329 L0,0 L0,0 Z" id="path74" fill="#E24329" />
+                        </g>
+                        <g id="g76" transform="translate(247.197860, 1.160800)">
+                           <path d="M0,0 L90.6839977,279.09466 L217.775995,279.09466 L0,0 L0,0 Z" id="path78" fill="#FC6D26" />
+                        </g>
+                        <g id="g80" transform="translate(246.307061, 0.255867)">
+                           <path d="M218.666661,279.999993 L218.666661,279.999993 L246.225327,195.185328 C248.73866,187.449329 245.985327,178.974662 239.403994,174.194662 L0.890666644,0.905333311 L218.666661,279.999993 L218.666661,279.999993 Z" id="path82" fill="#FCA326" />
+                        </g>
+                        <g id="g84" transform="translate(336.973725, 280.255593)">
+                           <path d="M127.999997,0 L0.907999977,0 L55.5266653,168.097329 C58.3373319,176.746662 70.5733316,176.746662 73.3826648,168.097329 L127.999997,0 L127.999997,0 Z" id="path86" fill="#E24329" />
+                        </g>
+                     </g>
+                  </g>
+               </g>
+            </g>
+         </g>
+      </g>
+   </g>
+</svg>
