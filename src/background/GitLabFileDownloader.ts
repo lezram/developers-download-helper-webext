@@ -13,8 +13,10 @@ export default class GitLabFileDownloader {
             return;
         }
         
-        let parts = new URL(info.linkUrl).pathname.substr(1).split("/");
+        const url = new URL(info.linkUrl);
+        const parts = url.pathname.substr(1).split("/");
         const file = {
+            origin: url.origin,
             reponame: parts.slice(0,2).join("/"),
             type: parts[2],
             branch: parts[3],
@@ -26,7 +28,7 @@ export default class GitLabFileDownloader {
         if(file.absolutefilename === "") {
             // https://gitlab.com/gitlab-com/support-forum/issues/3067
             chrome.downloads.download({
-                url: `https://gitlab.com/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/archive.zip`,
+                url: `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/archive.zip`,
                 saveAs: showSaveAs
             });
             
@@ -48,7 +50,7 @@ export default class GitLabFileDownloader {
     
     private static async download_file(file, showSaveAs) {
         // find hash of file
-        let url = `https://gitlab.com/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/tree?path=${encodeURIComponent(file.path)}&per_page=100`;
+        let url = `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/tree?path=${encodeURIComponent(file.path)}&per_page=100`;
         if(file.branch) {
             url += `&ref=${encodeURIComponent(file.branch)}`;
         }
@@ -58,7 +60,7 @@ export default class GitLabFileDownloader {
         // download
         chrome.downloads.download({
             filename: file.filename,
-            url: `https://gitlab.com/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/blobs/${sha}/raw`,
+            url: `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/blobs/${sha}/raw`,
             saveAs: showSaveAs
         });
     }
@@ -66,7 +68,7 @@ export default class GitLabFileDownloader {
     private static async download_zip(file, showSaveAs) {
         // get tree
         // FIXME: fails silently when tree has more than 100 elements
-        let url = `https://gitlab.com/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/tree?recursive=true&per_page=100`;
+        let url = `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/tree?recursive=true&per_page=100`;
         if(file.branch) {
             url += `&ref=${encodeURIComponent(file.branch)}`;
         }
@@ -83,7 +85,7 @@ export default class GitLabFileDownloader {
             .filter(object => object.type == 'blob')
             .map(object => {
                 return {
-                    content: fetch(`https://gitlab.com/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/blobs/${object.id}/raw`, {credentials: 'include'})
+                    content: fetch(`${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/blobs/${object.id}/raw`, {credentials: 'include'})
                                 .then(res => res.blob()),
                     ...object
                 };
