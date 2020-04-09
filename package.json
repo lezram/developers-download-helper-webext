@@ -1,0 +1,47 @@
+{
+  "name": "developers-download-helper-chrome",
+  "version": "0.2.0",
+  "description": "Chrome extension to download files and folders from GitHub and GitLab via context menu.",
+  "scripts": {
+    "zip": "npm run build && bestzip developers-download-helper-chrome.zip dist/",
+    "build": "webpack",
+    "watch": "webpack -w --mode=development",
+    "test": "jest",
+    "coverage": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lezram/developers-download-helper-chrome.git"
+  },
+  "keywords": [
+    "download",
+    "helper",
+    "github",
+    "gitlab"
+  ],
+  "author": "lezram",
+  "license": "MIT",
+  "devDependencies": {
+    "@fluffy-spoon/substitute": "^1.118.0",
+    "@types/chrome": "0.0.103",
+    "@types/jest": "^25.1.4",
+    "@types/jszip": "^3.1.7",
+    "awesome-typescript-loader": "^5.2.1",
+    "bestzip": "^2.1.5",
+    "jest": "^25.2.3",
+    "ts-jest": "^25.2.1",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "class-transformer": "^0.2.3",
+    "jszip": "^3.2.2",
+    "reflect-metadata": "^0.1.13",
+    "tsyringe": "^4.1.0"
+  },
+  "bugs": {
+    "url": "https://github.com/lezram/developers-download-helper-chrome/issues"
+  },
+  "homepage": "https://github.com/lezram/developers-download-helper-chrome#readme"
+}

@@ -1,0 +1,5 @@
+.idea
+dist/js
+node_modules
+developers-download-helper-chrome.zip
+.DS_Store

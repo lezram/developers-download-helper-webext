@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Git Download Helper Options</title>
+    <style>
+        .bold {
+            font-weight: bold;
+            display: block;
+        }
+
+        .description {
+            font-size: 0.8em;
+            color: gray;
+        }
+
+        .configuration_block {
+            margin-top: 0.8em;
+        }
+
+        .divider {
+            width: 100%;
+            height: 2px;
+            background: #dedede;
+            overflow: hidden;
+            margin-top: 1em;
+        }
+
+        .status {
+            background: gray;
+            font-size: 0.8em;
+            color: white;
+            padding: 0.4em;
+            border-radius: 0.3em;
+            margin-left: 1em;
+            display: none;
+        }
+
+        .errorDetails {
+            display: none;
+            width: 100%;
+            margin-top: 1em;
+            background: #ff0000;
+            resize: vertical;
+            border: none;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div id="content"></div>
+<br>
+<button style="display: inline-block;" id="save">Save</button>
+<div class="status" id="status"></div>
+<textarea class="errorDetails" id="errorDetails" rows="5" disabled></textarea>
+<script src="./js/options.js"></script>
+</body>
+</html>
