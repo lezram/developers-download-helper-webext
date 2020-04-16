@@ -1,28 +1,24 @@
 export class Util {
     public static isNotNull(value: any) {
-        return undefined !== value && null !== value;
+        return !Util.isNull(value);
+    }
+
+    public static isNull(value: any) {
+        return undefined === value || null === value;
     }
 
     public static sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-
-    public static areArraysEqual(array1: string[], array2: string[]) {
-        const isSame = (array1.length == array2.length) && array1.every(function (element, index) {
-            return element === array2[index];
-        });
-
-        return isSame;
-    }
-
-    public static isUrlPatternValid(url): boolean {
+    
+    public static isUrlMatchPatternValid(url): boolean {
         let regexScheme = "(\\*|http|https|file|ftp)";
         let regexHost = "(\\*|(?:\\*\\.)?(?:[^/*]+))?";
         let regexPath = "(.*)";
         let regex = new RegExp("^" + regexScheme + "://" + regexHost + "/" + regexPath + "$");
         let match = regex.exec(url);
 
-        if (!match) {
+        if (!match || !url.includes("*")) {
             return false;
         }
 

@@ -14,7 +14,7 @@ export class ChromeNotificationService {
             iconUrl: "images/icon-red-48.png",
             title: title,
             message: message,
-            requireInteraction: true
+            requireInteraction: true,
         });
 
         ChromeNotificationService.notifications.push(notificationId);

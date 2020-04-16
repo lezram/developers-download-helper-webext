@@ -1,6 +1,6 @@
-import {DownloaderMetadata} from "../../model/Configuration";
 import {FileWrapper} from "../../model/FileWrapper";
 import {ActionData} from "../../model/ActionData";
+import {DownloaderMetadata} from "../../model/DownloaderMetadata";
 
 export const DOWNLOADER = "Downloader";
 

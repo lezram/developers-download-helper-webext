@@ -1,48 +1,62 @@
 import {inject, singleton} from "tsyringe";
-import {Configuration, ContextMenuItemConfiguration, DownloaderMetadata} from "../../model/Configuration";
+import {DownloaderConfiguration,} from "../../model/Configuration";
 import {ChromeContextMenuService} from "../chrome/ChromeContextMenuService";
 import {ContextMenuActionService} from "./ContextMenuActionService";
 import {ContextMenuItem, ContextOnClickAction} from "../../model/ContextMenuItem";
+import {DownloaderRegistry} from "../downloader/DownloaderRegistry";
+import {ConfigurationService} from "../ConfigurationService";
+import {ActionItemMetadata} from "../../model/ActionItemMetadata";
+import {DownloaderMetadata} from "../../model/DownloaderMetadata";
+import {Util} from "../../util/Util";
 
 @singleton()
 export class ContextMenuService {
 
     constructor(@inject(ContextMenuActionService) private contextMenuActionService: ContextMenuActionService,
                 @inject(ChromeContextMenuService) private chromeContextMenuService: ChromeContextMenuService,
+                @inject(DownloaderRegistry) private downloaderRegistry: DownloaderRegistry,
+                @inject(ConfigurationService) private configurationService: ConfigurationService
     ) {
     }
 
-    public createContextMenus(configuration: Configuration): void {
-        this.addAllActionContextMenuItems(configuration);
+    public async createContextMenus(): Promise<void> {
+        await this.addAllActionContextMenuItems();
     }
 
-    public updateContextMenus(configuration: Configuration): void {
-        this.chromeContextMenuService.clearAllContextMenus();
+    public async updateContextMenus(): Promise<void> {
+        await this.chromeContextMenuService.clearAllContextMenus();
 
-        this.addAllActionContextMenuItems(configuration);
+        await this.addAllActionContextMenuItems();
     }
 
-    private addAllActionContextMenuItems(configuration: Configuration): void {
-        const menuItems: ContextMenuItemConfiguration[] = this.getActiveContextMenuItems(configuration.contextMenu);
-        const downloaders: DownloaderMetadata[] = this.getDownloaders(configuration.downloader);
+    private async addAllActionContextMenuItems(): Promise<void> {
+        const activeActionItems: ActionItemMetadata[] = await this.configurationService.getActiveActionItems();
+        const downloaders: DownloaderMetadata[] = this.downloaderRegistry.getAllDownloadersMetadata();
 
-        const contextMenuItems: ContextMenuItem[] = this.createContextMenuItems(menuItems, downloaders);
+        const contextMenuItems: ContextMenuItem[] = await this.createContextMenuItems(activeActionItems, downloaders);
 
         this.addItemsToContextMenu(contextMenuItems);
     }
 
-    private createContextMenuItems(menuItems: ContextMenuItemConfiguration[], downloaders: DownloaderMetadata[]): ContextMenuItem[] {
+    private async createContextMenuItems(activeItems: ActionItemMetadata[], downloaders: DownloaderMetadata[]): Promise<ContextMenuItem[]> {
         const contextMenuItems: ContextMenuItem[] = [];
-        for (const menuItem of menuItems) {
+        for (const item of activeItems) {
             for (const downloader of downloaders) {
-                const clickAction: ContextOnClickAction = this.contextMenuActionService.getMenuItemAction(menuItem.id, downloader.id);
+                let downloaderConfiguration = await this.configurationService.getDownloaderCustomConfiguration(downloader.id);
 
-                contextMenuItems.push({
-                    action: menuItem.id,
-                    title: menuItem.title,
-                    urlPatterns: downloader.urlPatterns,
-                    onclick: clickAction
-                });
+                if (this.isDownloaderEnabled(downloader, downloaderConfiguration)) {
+                    let linkPatterns = this.getLinkPatterns(downloader, downloaderConfiguration);
+
+                    const clickAction: ContextOnClickAction = this.contextMenuActionService.getMenuItemAction(item.id, downloader.id);
+
+                    contextMenuItems.push({
+                        action: item.id,
+                        title: item.title,
+                        urlPatterns: linkPatterns,
+                        onclick: clickAction
+                    });
+                }
+
             }
         }
 
@@ -55,15 +69,47 @@ export class ContextMenuService {
         }
     }
 
-    private getActiveContextMenuItems(contextMenuItems: ContextMenuItemConfiguration[]): ContextMenuItemConfiguration[] {
-        return contextMenuItems.filter(menuItem => {
-            return menuItem != null && menuItem.active;
-        });
+    private getLinkPatterns(downloader: DownloaderMetadata, downloaderConfiguration: DownloaderConfiguration): string[] {
+        const patterns = [];
+
+        if (downloader &&
+            downloader.configuration &&
+            Array.isArray(downloader.configuration.linkPatterns) &&
+            downloader.configuration.linkPatterns.length > 0
+        ) {
+            patterns.push(...downloader.configuration.linkPatterns);
+        }
+
+        if (downloaderConfiguration &&
+            Array.isArray(downloaderConfiguration.linkPatterns) &&
+            downloaderConfiguration.linkPatterns.length > 0) {
+            patterns.push(...downloaderConfiguration.linkPatterns);
+        }
+
+        return patterns;
     }
 
-    private getDownloaders(downloaders: DownloaderMetadata[]): DownloaderMetadata[] {
-        return downloaders.filter(downloader => {
-            return downloader != null && downloader.urlPatterns && downloader.urlPatterns.length > 0;
-        });
+    private isDownloaderEnabled(downloader: DownloaderMetadata, downloaderConfiguration: DownloaderConfiguration) {
+        if (downloaderConfiguration &&
+            downloaderConfiguration.disabled === true ||
+            ((!downloaderConfiguration || Util.isNull(downloaderConfiguration.disabled)) &&
+                downloader &&
+                downloader.configuration &&
+                downloader.configuration.disabled === true)
+        ) {
+            return false;
+        }
+
+        if (downloader &&
+            downloader.configuration &&
+            Array.isArray(downloader.configuration.linkPatterns) &&
+            downloader.configuration.linkPatterns.length > 0
+        ) {
+            return true;
+        }
+
+        return downloaderConfiguration &&
+            Array.isArray(downloaderConfiguration.linkPatterns) &&
+            downloaderConfiguration.linkPatterns.length > 0;
     }
 }

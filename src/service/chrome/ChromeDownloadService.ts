@@ -21,7 +21,6 @@ export class ChromeDownloadService {
                 saveAs: askBeforeSave,
             }, function () {
                 if (chrome.runtime.lastError) {
-                    console.log(chrome.runtime.lastError.message);
                     reject()
                 }
 

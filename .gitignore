@@ -1,5 +1,8 @@
 .idea
 dist/js
+out
 node_modules
-developers-download-helper-chrome.zip
 .DS_Store
+developers-download-helper-chrome.zip
+developers-download-helper.crx
+key.pem

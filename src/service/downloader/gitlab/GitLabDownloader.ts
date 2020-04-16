@@ -1,9 +1,10 @@
 import {Downloader} from "../Downloader";
-import {DownloaderMetadata} from "../../../model/Configuration";
 import {FileType, FileWrapper} from "../../../model/FileWrapper";
 import {ActionData} from "../../../model/ActionData";
 import {singleton} from "tsyringe";
 import * as ZIP from "jszip";
+import {DownloaderMetadata} from "../../../model/DownloaderMetadata";
+import {ResourceNotAccessibleException} from "../../../exception/ResourceNotAccessibleException";
 
 @singleton()
 export class GitLabDownloader implements Downloader {
@@ -27,8 +28,6 @@ export class GitLabDownloader implements Downloader {
             path: parts.slice(4, parts.length - 1).join("/")
         };
 
-        console.log("download", file);
-
         if (file.absolutefilename === "") {
             // https://gitlab.com/gitlab-com/support-forum/issues/3067
             return {
@@ -38,25 +37,38 @@ export class GitLabDownloader implements Downloader {
             };
         }
 
+
         switch (file.type) {
             case 'tree':
-                const blob = await GitLabDownloader.download_zip(file);
-                console.log(blob);
-                return blob;
+                try {
+                    return GitLabDownloader.download_zip(file);
+                } catch (error) {
+                    throw new ResourceNotAccessibleException("Request resource failed", error);
+                }
             case 'blob':
-                return GitLabDownloader.download_file(file);
+                try {
+                    return GitLabDownloader.download_file(file);
+                } catch (error) {
+                    throw new ResourceNotAccessibleException("Request resource failed", error);
+                }
             default:
                 throw new Error("Unsupported file");
         }
+
     }
 
     public getMetadata(): DownloaderMetadata {
         return {
             id: GitLabDownloader.ID,
             name: "GitLab",
-            urlPatterns: [
-                "https://gitlab.com/*"
-            ]
+            configuration: {
+                linkPatterns: ["https://gitlab.com/*/*"],
+                permissions: [
+                    /* set in manifest.json! */
+                    "https://gitlab.com/*"
+                ]
+            },
+            allowCustomUrls: true,
         };
     }
 

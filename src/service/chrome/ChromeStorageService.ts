@@ -1,5 +1,4 @@
 import {singleton} from "tsyringe";
-import {plainToClass} from "class-transformer";
 
 @singleton()
 export class ChromeStorageService {
@@ -10,7 +9,6 @@ export class ChromeStorageService {
                 if (chrome.runtime.lastError) {
                     reject(chrome.runtime.lastError);
                 }
-
                 resolve(item);
             });
         });
@@ -22,7 +20,6 @@ export class ChromeStorageService {
                 if (chrome.runtime.lastError) {
                     reject(chrome.runtime.lastError);
                 }
-
                 resolve(data);
             });
         });

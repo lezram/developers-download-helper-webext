@@ -1,10 +1,11 @@
 import {Downloader} from "../Downloader";
-import {DownloaderMetadata} from "../../../model/Configuration";
 import {FileType, FileWrapper} from "../../../model/FileWrapper";
 import {ActionData} from "../../../model/ActionData";
 import {singleton} from "tsyringe";
 import GithubURL from "./GithubURL";
 import {FileType as GitHubFileType} from "./FileType";
+import {DownloaderMetadata} from "../../../model/DownloaderMetadata";
+import {ResourceNotAccessibleException} from "../../../exception/ResourceNotAccessibleException";
 
 @singleton()
 export class GitHubDownloader implements Downloader {
@@ -24,18 +25,26 @@ export class GitHubDownloader implements Downloader {
             throw new Error("invalid url");
         }
 
-        let url = await githubURL.getDownloadUrl();
+
+        let url;
+        try {
+            url = await githubURL.getDownloadUrl();
+        } catch (error) {
+            throw new ResourceNotAccessibleException(`Request resource failed: ${githubURL}`, error);
+        }
 
         let filename = null;
         let type: FileType = FileType.URL;
 
         if (githubURL.fileType !== GitHubFileType.ZIPBALL && githubURL.fileType !== GitHubFileType.TREE) {
-
-            const blobFile = await fetch(<string>url, {credentials: 'include'});
-            const theFile = await blobFile.blob();
-
-            type = FileType.RAW;
-            url = theFile;
+            try {
+                const blobFile = await fetch(<string>url, {credentials: 'include'});
+                const theFile = await blobFile.blob();
+                type = FileType.RAW;
+                url = theFile;
+            } catch (error) {
+                throw new ResourceNotAccessibleException(`Request resource failed: ${githubURL}`, error);
+            }
 
             filename = githubURL.filePath.split("/").pop().replace(/^[.]+/g, "");
         } else if (githubURL.fileType === GitHubFileType.TREE) {
@@ -59,9 +68,15 @@ export class GitHubDownloader implements Downloader {
         return {
             id: GitHubDownloader.ID,
             name: "GitHub",
-            urlPatterns: [
-                "https://github.com/*"
-            ]
+            configuration: {
+                linkPatterns: ["https://github.com/*/*"],
+                permissions: [
+                    /* set in manifest.json! */
+                    "https://*.github.com/*",
+                    "https://*.githubusercontent.com/*",
+                ]
+            },
+            allowCustomUrls: true,
         };
     }
 }

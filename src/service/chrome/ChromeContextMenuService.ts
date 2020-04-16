@@ -9,13 +9,18 @@ export class ChromeContextMenuService {
             type: "normal",
             title: contextMenuItem.title,
             targetUrlPatterns: contextMenuItem.urlPatterns,
-            documentUrlPatterns: contextMenuItem.urlPatterns,
+            documentUrlPatterns: ["<all_urls>"],
             contexts: ["link"],
             onclick: contextMenuItem.onclick
         });
     }
 
-    public clearAllContextMenus(): void  {
-        chrome.contextMenus.removeAll();
+    public clearAllContextMenus(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            chrome.contextMenus.removeAll(() => {
+                resolve();
+            });
+        });
+
     }
 }

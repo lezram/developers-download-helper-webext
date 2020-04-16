@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Git Download Helper Options</title>
     <style>
@@ -24,34 +24,13 @@
             overflow: hidden;
             margin-top: 1em;
         }
-
-        .status {
-            background: gray;
-            font-size: 0.8em;
-            color: white;
-            padding: 0.4em;
-            border-radius: 0.3em;
-            margin-left: 1em;
-            display: none;
-        }
-
-        .errorDetails {
-            display: none;
-            width: 100%;
-            margin-top: 1em;
-            background: #ff0000;
-            resize: vertical;
-            border: none;
-            color: white;
-        }
     </style>
 </head>
 <body>
 <div id="content"></div>
 <br>
 <button style="display: inline-block;" id="save">Save</button>
-<div class="status" id="status"></div>
-<textarea class="errorDetails" id="errorDetails" rows="5" disabled></textarea>
+<div id="status"></div>
 <script src="./js/options.js"></script>
 </body>
 </html>

@@ -30,6 +30,11 @@
     "downloads",
     "storage",
     "notifications",
+    "https://*.github.com/*",
+    "https://*.githubusercontent.com/*",
+    "https://gitlab.com/*"
+  ],
+  "optional_permissions": [
     "<all_urls>"
   ]
 }

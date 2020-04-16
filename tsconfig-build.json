@@ -4,12 +4,11 @@
     "module": "commonjs",
     "removeComments": false,
     "noImplicitAny": false,
-    "outDir": "out",
+    "outDir": "dist/js",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
   "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
+    "src/**/*.ts"
   ]
 }

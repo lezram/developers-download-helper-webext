@@ -7,6 +7,7 @@ import {ChromeDownloadService} from "../chrome/ChromeDownloadService";
 import {ContextOnClickAction} from "../../model/ContextMenuItem";
 import OnClickData = chrome.contextMenus.OnClickData;
 import {Action} from "../../model/Action";
+import {ResourceNotAccessibleException} from "../../exception/ResourceNotAccessibleException";
 
 @singleton()
 export class ContextMenuActionService {
@@ -25,11 +26,19 @@ export class ContextMenuActionService {
             let file: FileWrapper;
             try {
                 const url = new URL(info.linkUrl);
-                file = await downloaderService.getFile({url: url});
+                file = await downloaderService.getFile({
+                    action: action,
+                    url: url
+                });
                 this.chromeNotificationService.updateProgressNotification(notificationId, 60, "Download", "Files ready!");
             } catch (error) {
-                console.log(error);
-                this.chromeNotificationService.showErrorNotification("Download not supported", "" + info.linkUrl);
+                await this.clearNotification();
+                if (error instanceof ResourceNotAccessibleException) {
+                    this.chromeNotificationService.showErrorNotification("Not able to download resource", "Please check the extension options and permissions " + info.linkUrl);
+                } else {
+                    this.chromeNotificationService.showErrorNotification("Download not supported", "" + info.linkUrl);
+                }
+
                 return;
             }
 
@@ -42,9 +51,8 @@ export class ContextMenuActionService {
             try {
                 await this.chromeDownloadService.downloadFile(file, askBeforeSave);
                 this.chromeNotificationService.updateProgressNotification(notificationId, 100, "Download", "Run!");
-                this.clearNotification();
+                await this.clearNotification();
             } catch (error) {
-                console.log(error);
                 this.chromeNotificationService.showErrorNotification("Download failed", "" + error?.message);
             }
         };

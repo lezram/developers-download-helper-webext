@@ -2,7 +2,7 @@ import {DOWNLOADER, Downloader} from "./Downloader";
 import {injectAll, registry, singleton} from "tsyringe";
 import {GitLabDownloader} from "./gitlab/GitLabDownloader";
 import {GitHubDownloader} from "./github/GitHubDownloader";
-import {DownloaderMetadata} from "../../model/Configuration";
+import {DownloaderMetadata} from "../../model/DownloaderMetadata";
 
 @singleton()
 @registry([
@@ -11,38 +11,40 @@ import {DownloaderMetadata} from "../../model/Configuration";
     // Add new downloader classes here
 ])
 export class DownloaderRegistry {
-    private downloaderByIdentifier: { [key: string]: Downloader } = {};
+    private downloaders: Map<string, Downloader> = new Map();
 
     constructor(@injectAll(DOWNLOADER) private downloaderList: Downloader[]) {
         for (const downloader of downloaderList) {
             const metadata = downloader.getMetadata();
 
-            if (!metadata || this.downloaderByIdentifier.hasOwnProperty(metadata.id)) {
+            if (!metadata || this.downloaders.has(metadata.id)) {
                 throw new Error("Invalid downloader configuration" + metadata);
             }
 
-            this.downloaderByIdentifier[metadata.id] = downloader;
+            this.downloaders.set(metadata.id, downloader);
         }
     }
 
-    public getDownloader(id: string): Downloader {
-        if (this.downloaderByIdentifier.hasOwnProperty(id)) {
-            return this.downloaderByIdentifier[id];
+    public getDownloader(downloaderId: string): Downloader {
+        if (this.downloaders.has(downloaderId)) {
+            return this.downloaders.get(downloaderId);
         } else {
-            throw new Error("test");
+            throw new Error("No downloader found for id " + downloaderId);
         }
     }
 
-    public getDownloaderConfiguration(): DownloaderMetadata[] {
-        const downloaderConfiguration: DownloaderMetadata[] = [];
+    public getAllDownloadersMetadata(): DownloaderMetadata[] {
+        const allMetadata = [];
 
-        for (const downloaderId in this.downloaderByIdentifier) {
-            const downloader = this.downloaderByIdentifier[downloaderId];
-            const metadata = downloader.getMetadata();
-            downloaderConfiguration.push(metadata);
+        for (const downloader of this.downloaders.values()) {
+            let metadata = downloader.getMetadata();
+
+            if (metadata && metadata.id) {
+                allMetadata.push(metadata);
+            }
         }
 
-        return downloaderConfiguration;
+        return allMetadata;
     }
 
 }

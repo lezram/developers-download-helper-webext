@@ -4,6 +4,7 @@ import {Arg, Substitute, SubstituteOf} from "@fluffy-spoon/substitute";
 import {ConfigurationService} from "../../src/service/ConfigurationService";
 import {ContextMenuService} from "../../src/service/context-menu/ContextMenuService";
 import {Configuration} from "../../src/model/Configuration";
+import {Mo} from "../test-support/Mo";
 
 describe("BackgroundServiceTest", (): void => {
 
@@ -14,11 +15,8 @@ describe("BackgroundServiceTest", (): void => {
     beforeEach((): void => {
         container.reset();
 
-        configurationServiceMock = Substitute.for<ConfigurationService>();
-        container.register(ConfigurationService, {useValue: configurationServiceMock});
-
-        contextMenuServiceMock = Substitute.for<ContextMenuService>();
-        container.register(ContextMenuService, {useValue: contextMenuServiceMock});
+        contextMenuServiceMock = Mo.injectMock(ContextMenuService);
+        configurationServiceMock = Mo.injectMock(ConfigurationService);
 
         testee = container.resolve(BackgroundService);
     });
@@ -26,12 +24,11 @@ describe("BackgroundServiceTest", (): void => {
     test("testRun", async (): Promise<void> => {
         const configMock = Substitute.for<Configuration>();
 
-        configurationServiceMock.getConfiguration().returns(Promise.resolve(configMock));
+        configurationServiceMock.getConfiguration().resolves(configMock);
 
         await testee.run();
 
-        configurationServiceMock.received(1).getConfiguration();
-        contextMenuServiceMock.received(1).createContextMenus(configMock);
+        contextMenuServiceMock.received(1).createContextMenus();
         configurationServiceMock.received(1).addConfigurationChangeListener(Arg.any());
     });
 
@@ -46,9 +43,8 @@ describe("BackgroundServiceTest", (): void => {
 
         await testee.run();
 
-        configurationServiceMock.received(1).getConfiguration();
-        contextMenuServiceMock.received(1).createContextMenus(Arg.any());
+        contextMenuServiceMock.received(1).createContextMenus();
         configurationServiceMock.received(1).addConfigurationChangeListener(Arg.any());
-        contextMenuServiceMock.received(1).updateContextMenus(Arg.any());
+        contextMenuServiceMock.received(1).updateContextMenus();
     });
 });

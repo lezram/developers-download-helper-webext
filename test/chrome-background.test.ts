@@ -1,6 +1,7 @@
 import {container} from "tsyringe";
-import {Substitute, SubstituteOf} from "@fluffy-spoon/substitute";
+import {SubstituteOf} from "@fluffy-spoon/substitute";
 import {BackgroundService} from "../src/service/BackgroundService";
+import {Mo} from "./test-support/Mo";
 
 describe("chrome-background Test", () => {
 
@@ -8,17 +9,12 @@ describe("chrome-background Test", () => {
 
     beforeEach(() => {
         container.reset();
-
-        backgroundServiceMock = Substitute.for<BackgroundService>();
-        container.register(BackgroundService, {useValue: backgroundServiceMock});
+        backgroundServiceMock = Mo.injectMock(BackgroundService);
     });
-
 
     test("test", async () => {
         require("../src/chrome-background");
 
         backgroundServiceMock.received(1).run();
     });
-
-
 });

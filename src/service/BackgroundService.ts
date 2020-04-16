@@ -12,13 +12,10 @@ export class BackgroundService {
     }
 
     public async run(): Promise<void> {
-        const configuration = await this.configurationService.getConfiguration();
-
-        this.contextMenuService.createContextMenus(configuration);
+        await this.contextMenuService.createContextMenus();
 
         this.configurationService.addConfigurationChangeListener(async (configuration): Promise<void> => {
-            this.contextMenuService.updateContextMenus(configuration);
+            await this.contextMenuService.updateContextMenus();
         });
     }
-
 }
