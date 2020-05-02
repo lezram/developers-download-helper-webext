@@ -53,6 +53,7 @@ export class ContextMenuActionService {
                 this.chromeNotificationService.updateProgressNotification(notificationId, 100, "Download", "Run!");
                 await this.clearNotification();
             } catch (error) {
+                await this.clearNotification();
                 this.chromeNotificationService.showErrorNotification("Download failed", "" + error?.message);
             }
         };

@@ -89,4 +89,9 @@ describe("UtilTest", () => {
         expect(isValid).toBeTruthy();
     });
 
+    test("testIsUrlMatchPatternValidFilePattern", async () => {
+        let isValid = Util.isUrlMatchPatternValid("file:///*");
+        expect(isValid).toBeFalsy();
+    });
+
 });

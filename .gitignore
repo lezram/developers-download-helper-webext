@@ -6,3 +6,4 @@ node_modules
 developers-download-helper-chrome.zip
 developers-download-helper.crx
 key.pem
+coverage/

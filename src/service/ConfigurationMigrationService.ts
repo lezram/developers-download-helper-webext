@@ -96,10 +96,6 @@ export class ConfigurationMigrationService {
     private isUrlHostIn(url: string, defaultUrls: string[]) {
         const currentUrl = new URL(url);
 
-        if (!currentUrl) {
-            return true;
-        }
-
         for (const defaultUrl of defaultUrls) {
             const defaultUrlObj = new URL(defaultUrl);
 

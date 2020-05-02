@@ -16,19 +16,4 @@ export class ChromePermissionService {
         });
     }
 
-
-    public hasUrlPermissions(urls: string[]): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            chrome.permissions.request({
-                origins: urls
-            }, (hasPermissions: boolean) => {
-                if (chrome.runtime.lastError) {
-                    resolve(false);
-                }
-                resolve(hasPermissions);
-            });
-        });
-    }
-
-
 }

@@ -18,7 +18,7 @@ export class DownloaderRegistry {
             const metadata = downloader.getMetadata();
 
             if (!metadata || this.downloaders.has(metadata.id)) {
-                throw new Error("Invalid downloader configuration" + metadata);
+                throw new Error("Invalid downloader configuration" + JSON.stringify(metadata));
             }
 
             this.downloaders.set(metadata.id, downloader);

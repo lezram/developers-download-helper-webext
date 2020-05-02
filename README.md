@@ -23,4 +23,3 @@ npm run build
 * [tsyringe](https://github.com/microsoft/tsyringe)
 * [webpack](https://github.com/webpack/webpack)
 * [Chrome API](https://developer.chrome.com/extensions/api_index)
-* [class-transformer](https://github.com/typestack/class-transformer)

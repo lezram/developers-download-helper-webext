@@ -8,7 +8,7 @@ import {PermissionRequestFailedException} from "../../exception/PermissionReques
 import {InvalidUrlMatchPatternException} from "../../exception/InvalidUrlMatchPatternException";
 
 @singleton()
-export class OptionsDisplayService {
+export class HtmlOptionsService {
 
     constructor(
         @inject(ChromePermissionService) private chromePermissionService: ChromePermissionService,

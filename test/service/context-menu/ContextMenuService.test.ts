@@ -14,7 +14,8 @@ import OnClickData = chrome.contextMenus.OnClickData;
 describe("ContextMenuServiceTest", (): void => {
     const ACTION_FUNCTION_MOCK = async (info: OnClickData, tab: chrome.tabs.Tab): Promise<void> => {
     };
-    const URL: string = "any-url";
+    const URL: string = "url1";
+    const URL_1: string = "url2";
     const DOWNLOAD_TITLE: string = "Download";
     const ACTION_ITEM: ActionItemMetadata = {
         id: Action.DOWNLOAD,
@@ -30,7 +31,25 @@ describe("ContextMenuServiceTest", (): void => {
             permissions: []
         }
     };
-
+    const DOWNLOADER_EMPTY: DownloaderMetadata = {
+        id: "test1",
+        name: "test1",
+        allowCustomUrls: false,
+        configuration: {
+            linkPatterns: [],
+            permissions: []
+        }
+    };
+    const DOWNLOADER_DISABLED: DownloaderMetadata = {
+        id: "test2",
+        name: "test2",
+        allowCustomUrls: false,
+        configuration: {
+            linkPatterns: [URL_1],
+            permissions: [],
+            disabled: true
+        }
+    };
 
     let testee: ContextMenuService;
     let contextMenuActionServiceMock: SubstituteOf<ContextMenuActionService>;
@@ -90,5 +109,25 @@ describe("ContextMenuServiceTest", (): void => {
         await testee.createContextMenus();
 
         chromeContextMenuServiceMock.didNotReceive().addContextMenu(Arg.all());
+    });
+
+    test("testCreateContextMenusWithIncompleteCustomConfiguration", async (): Promise<void> => {
+        configurationServiceMock.getActiveActionItems().resolves([ACTION_ITEM]);
+        downloaderRegistryMock.getAllDownloadersMetadata().returns([DOWNLOADER_EMPTY, DOWNLOADER_DISABLED]);
+        configurationServiceMock.getDownloaderCustomConfiguration(Arg.any()).resolves({
+            linkPatterns: [URL],
+            permissions: [],
+        });
+        contextMenuActionServiceMock.getMenuItemAction(Arg.all()).returns(ACTION_FUNCTION_MOCK);
+
+        await testee.createContextMenus();
+
+        chromeContextMenuServiceMock.received(1).addContextMenu({
+            title: DOWNLOAD_TITLE,
+            action: Action.DOWNLOAD,
+            urlPatterns: [URL],
+            onclick: ACTION_FUNCTION_MOCK
+        });
+        chromeContextMenuServiceMock.received(1).addContextMenu(Arg.any());
     });
 });

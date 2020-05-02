@@ -10,7 +10,7 @@ export class Util {
     public static sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-    
+
     public static isUrlMatchPatternValid(url): boolean {
         let regexScheme = "(\\*|http|https|file|ftp)";
         let regexHost = "(\\*|(?:\\*\\.)?(?:[^/*]+))?";
@@ -22,11 +22,11 @@ export class Util {
             return false;
         }
 
-        let scheme = match[1];
+        // let scheme = match[1];
         let host = match[2];
         // path = match[3];
 
-        return !(!host && scheme !== 'file');
+        return Boolean(host);
     }
 
 }
