@@ -23,7 +23,8 @@ export class ConfigurationMigrationService {
             "urls", "gitlaburls", "contextMenu"
         ]);
 
-        if (deprecatedConfiguration && deprecatedConfiguration.urls && deprecatedConfiguration.gitlaburls) {
+        if (deprecatedConfiguration && deprecatedConfiguration.urls) {
+            migrationNeeded = true;
             const configuration = new Configuration();
 
             const customGithubUrls = this.removeDownloaderDefaultUrls(GitHubDownloader.ID, deprecatedConfiguration.urls);
@@ -34,12 +35,14 @@ export class ConfigurationMigrationService {
                 });
             }
 
-            const customGitlabUrls = this.removeDownloaderDefaultUrls(GitLabDownloader.ID, deprecatedConfiguration.gitlaburls);
-            if (customGitlabUrls.length > 0) {
-                configuration.downloader.set(GitLabDownloader.ID, {
-                    linkPatterns: customGitlabUrls,
-                    permissions: customGitlabUrls
-                });
+            if(deprecatedConfiguration.gitlaburls){
+                const customGitlabUrls = this.removeDownloaderDefaultUrls(GitLabDownloader.ID, deprecatedConfiguration.gitlaburls);
+                if (customGitlabUrls.length > 0) {
+                    configuration.downloader.set(GitLabDownloader.ID, {
+                        linkPatterns: customGitlabUrls,
+                        permissions: customGitlabUrls
+                    });
+                }
             }
 
             if (deprecatedConfiguration.contextMenu) {
@@ -69,7 +72,6 @@ export class ConfigurationMigrationService {
                 rawConfiguration.downloader = [...configuration.downloader];
             }
 
-            migrationNeeded = true;
             await this.chromeStorageService.clearStorage();
             await this.chromeStorageService.save(rawConfiguration);
         }

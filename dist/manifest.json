@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Developer's Download Helper",
   "short_name": "DeDoHe",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Download files and folders from GitHub or GitLab via context menu.",
   "homepage_url": "https://github.com/lezram/developers-download-helper-chrome",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",

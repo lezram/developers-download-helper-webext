@@ -1,6 +1,6 @@
 {
   "name": "developers-download-helper-chrome",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Chrome extension to download files and folders from GitHub and GitLab via context menu.",
   "scripts": {
     "build": "rm -rf dist/js && webpack",
@@ -34,7 +34,7 @@
     "jest": "^25.3.0",
     "jsdom": "^16.2.2",
     "ts-jest": "^25.2.1",
-    "typescript": "^3.8.3",
+    "typescript": "^3.9.0",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11"
   },
