@@ -4,7 +4,7 @@
   "short_name": "DeDoHe",
   "version": "0.3.0",
   "description": "Download files and folders from GitHub or GitLab via context menu.",
-  "homepage_url": "https://github.com/lezram/developers-download-helper-chrome",
+  "homepage_url": "https://github.com/lezram/developers-download-helper-webext",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "icons": {
     "16": "images/icon-16.png",
@@ -40,7 +40,7 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "extension@lezram.com",
-      "strict_min_version": "42.0"
+      "strict_min_version": "57.0"
     }
   }
 }

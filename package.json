@@ -4,7 +4,7 @@
   "description": "Web extension to download files and folders from GitHub and GitLab via context menu.",
   "scripts": {
     "build": "rm -rf dist/js && webpack",
-    "build:zip": "npm run build && bestzip developers-download-helper.zip dist/",
+    "build:zip": "npm run build && cd dist && bestzip ../developers-download-helper.zip *",
     "build:crx": "crx pack -o developers-download-helper.crx dist/ -p key.pem",
     "watch": "webpack -w --mode=development",
     "test": "jest",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lezram/developers-download-helper-chrome.git"
+    "url": "git+https://github.com/lezram/developers-download-helper-webext.git"
   },
   "keywords": [
     "download",
@@ -45,7 +45,7 @@
     "tsyringe": "^4.5.0"
   },
   "bugs": {
-    "url": "https://github.com/lezram/developers-download-helper-chrome/issues"
+    "url": "https://github.com/lezram/developers-download-helper-webext/issues"
   },
-  "homepage": "https://github.com/lezram/developers-download-helper-chrome#readme"
+  "homepage": "https://github.com/lezram/developers-download-helper-webext#readme"
 }

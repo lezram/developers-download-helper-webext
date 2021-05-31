@@ -5,6 +5,10 @@ Web extension to download files and folders from online file browsers via contex
 * GitHub
 * GitLab
 
+## Tested browsers
+* Chrome
+* Firefox
+
 ## Usage
 [Download from Google Chrome Webstore](https://chrome.google.com/webstore/detail/github-download-helper/apchbjkblfhmkohghpnhidldebmpmjnn)
 
@@ -13,8 +17,19 @@ In the extension option/preferences you can specify the urls on which the extens
 
 ## Build
 To build the extension run
-```
+```sh
 npm run build
+```
+
+### Extension files
+For firefox, ...
+```sh
+npm run build:zip
+```
+
+For chromium
+```sh
+npm run build:crx
 ```
 
 ## Thanks to ...

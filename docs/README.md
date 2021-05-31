@@ -1,4 +1,4 @@
-# Developer's Download Helper Chrome Extension
+# Developer's Download Helper Web Extension
 
 [Chrome Webstore](https://chrome.google.com/webstore/detail/github-download-helper/apchbjkblfhmkohghpnhidldebmpmjnn)
 
