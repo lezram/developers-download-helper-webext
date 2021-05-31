@@ -1,6 +1,5 @@
 import {inject, singleton} from "tsyringe";
 import {DownloaderConfiguration,} from "../../model/Configuration";
-import {ChromeContextMenuService} from "../chrome/ChromeContextMenuService";
 import {ContextMenuActionService} from "./ContextMenuActionService";
 import {ContextMenuItem, ContextOnClickAction} from "../../model/ContextMenuItem";
 import {DownloaderRegistry} from "../downloader/DownloaderRegistry";
@@ -8,12 +7,13 @@ import {ConfigurationService} from "../ConfigurationService";
 import {ActionItemMetadata} from "../../model/ActionItemMetadata";
 import {DownloaderMetadata} from "../../model/DownloaderMetadata";
 import {Util} from "../../util/Util";
+import {BrowserContextMenuService} from "../browser/BrowserContextMenuService";
 
 @singleton()
 export class ContextMenuService {
 
     constructor(@inject(ContextMenuActionService) private contextMenuActionService: ContextMenuActionService,
-                @inject(ChromeContextMenuService) private chromeContextMenuService: ChromeContextMenuService,
+                @inject(BrowserContextMenuService) private browserContextMenuService: BrowserContextMenuService,
                 @inject(DownloaderRegistry) private downloaderRegistry: DownloaderRegistry,
                 @inject(ConfigurationService) private configurationService: ConfigurationService
     ) {
@@ -24,7 +24,7 @@ export class ContextMenuService {
     }
 
     public async updateContextMenus(): Promise<void> {
-        await this.chromeContextMenuService.clearAllContextMenus();
+        await this.browserContextMenuService.clearAllContextMenus();
 
         await this.addAllActionContextMenuItems();
     }
@@ -65,7 +65,7 @@ export class ContextMenuService {
 
     private addItemsToContextMenu(contextMenuItems: ContextMenuItem[]): void {
         for (const item of contextMenuItems) {
-            this.chromeContextMenuService.addContextMenu(item);
+            this.browserContextMenuService.addContextMenu(item);
         }
     }
 

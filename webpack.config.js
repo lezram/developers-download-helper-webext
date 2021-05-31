@@ -2,19 +2,22 @@ const path = require('path');
 
 module.exports = {
     entry: {
-        options: path.join(__dirname, 'src/chrome-options.ts'),
-        background: path.join(__dirname, 'src/chrome-background.ts')
+        options: path.join(__dirname, 'src/options.ts'),
+        background: path.join(__dirname, 'src/background.ts')
     },
     mode: "production",
     module: {
         rules: [
             {
                 test: /\.ts$/,
-                loader: "awesome-typescript-loader",
+                use: [{
+                    loader: 'ts-loader',
+                    options: {
+                        configFile: "tsconfig-build.json"
+                    }
+                }],
                 exclude: /node_modules/,
-                options: {
-                    configFileName: 'tsconfig-build.json'
-                },
+
             },
         ],
     },

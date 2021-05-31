@@ -13,6 +13,7 @@
   "setupFiles": [
     "<rootDir>/jest-setup.config.ts"
   ],
+  "setupFilesAfterEnv": ["./test/setupTests.ts"],
   "collectCoverageFrom": [
     "./src/!(model)/**/*.ts"
   ]

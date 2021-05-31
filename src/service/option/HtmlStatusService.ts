@@ -1,11 +1,11 @@
 import {inject, singleton} from "tsyringe";
-import {ChromeRuntimeService} from "../chrome/ChromeRuntimeService";
+import {BrowserRuntimeService} from "../browser/BrowserRuntimeService";
 
 @singleton()
 export class HtmlStatusService {
 
     constructor(
-        @inject(ChromeRuntimeService) private readonly chromeRuntimeService: ChromeRuntimeService
+        @inject(BrowserRuntimeService) private readonly browserRuntimeService: BrowserRuntimeService
     ) {
     }
 
@@ -32,7 +32,7 @@ export class HtmlStatusService {
                 }
             }
 
-            const url = this.chromeRuntimeService.getHomePageUrl();
+            const url = this.browserRuntimeService.getHomePageUrl();
 
             detailContent += `<div style="display: inline; font-size: 0.6em;"> Details below ...</div>
                 <div style="width: 100%;

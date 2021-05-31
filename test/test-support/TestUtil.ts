@@ -10,61 +10,8 @@ export class TestUtil {
         return result;
     }
 
-    public static initializeChromeContext() {
+    public static mockJsBrowserFunctions(){
+        global.URL.createObjectURL = jest.fn();
         global["Blob"] = jest.fn();
-        global["URL"] = {
-            createObjectURL: jest.fn()
-        }
-
-        const chrome = {
-            contextMenus: {
-                create: jest.fn(),
-                removeAll: jest.fn().mockImplementation((callback?: () => void) => {
-                    callback();
-                })
-            },
-            downloads: {
-                download: jest.fn().mockImplementation((any, callback?: () => void) => {
-                    callback();
-                })
-            },
-            notifications: {
-                create: jest.fn(),
-                update: jest.fn(),
-                clear: jest.fn()
-            },
-            permissions: {
-                request: jest.fn().mockImplementation((any, callback?: () => void) => {
-                    callback();
-                })
-            },
-            storage: {
-                sync: {
-                    get: jest.fn().mockImplementation((any, callback?: () => void) => {
-                        callback();
-                    }),
-                    set: jest.fn().mockImplementation((any, callback?: () => void) => {
-                        callback();
-                    }),
-                    clear: jest.fn().mockImplementation((callback?: () => void) => {
-                        callback();
-                    })
-                },
-                onChanged: {
-                    addListener: jest.fn().mockImplementation((callback?: () => void) => {
-                        callback();
-                    })
-                }
-            },
-            runtime: {
-                lastError: false,
-                getManifest: jest.fn()
-            }
-        }
-
-        global["chrome"] = chrome;
-
-        return chrome;
     }
-
 }

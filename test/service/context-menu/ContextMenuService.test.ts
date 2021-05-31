@@ -1,7 +1,7 @@
 import {container} from "tsyringe";
 import {Arg, SubstituteOf} from "@fluffy-spoon/substitute";
 import {ContextMenuActionService} from "../../../src/service/context-menu/ContextMenuActionService";
-import {ChromeContextMenuService} from "../../../src/service/chrome/ChromeContextMenuService";
+import {BrowserContextMenuService} from "../../../src/service/browser/BrowserContextMenuService";
 import {ContextMenuService} from "../../../src/service/context-menu/ContextMenuService";
 import {Action} from "../../../src/model/Action";
 import {Mo} from "../../test-support/Mo";
@@ -9,10 +9,11 @@ import {DownloaderRegistry} from "../../../src/service/downloader/DownloaderRegi
 import {ConfigurationService} from "../../../src/service/ConfigurationService";
 import {ActionItemMetadata} from "../../../src/model/ActionItemMetadata";
 import {DownloaderMetadata} from "../../../src/model/DownloaderMetadata";
-import OnClickData = chrome.contextMenus.OnClickData;
+import {Menus, Tabs} from "webextension-polyfill-ts";
+import OnClickData = Menus.OnClickData;
 
 describe("ContextMenuServiceTest", (): void => {
-    const ACTION_FUNCTION_MOCK = async (info: OnClickData, tab: chrome.tabs.Tab): Promise<void> => {
+    const ACTION_FUNCTION_MOCK = async (info: OnClickData, tab: Tabs.Tab): Promise<void> => {
     };
     const URL: string = "url1";
     const URL_1: string = "url2";
@@ -53,7 +54,7 @@ describe("ContextMenuServiceTest", (): void => {
 
     let testee: ContextMenuService;
     let contextMenuActionServiceMock: SubstituteOf<ContextMenuActionService>;
-    let chromeContextMenuServiceMock: SubstituteOf<ChromeContextMenuService>;
+    let browserContextMenuServiceMock: SubstituteOf<BrowserContextMenuService>;
     let downloaderRegistryMock: SubstituteOf<DownloaderRegistry>;
     let configurationServiceMock: SubstituteOf<ConfigurationService>;
 
@@ -61,7 +62,7 @@ describe("ContextMenuServiceTest", (): void => {
         container.reset();
 
         contextMenuActionServiceMock = Mo.injectMock(ContextMenuActionService);
-        chromeContextMenuServiceMock = Mo.injectMock(ChromeContextMenuService);
+        browserContextMenuServiceMock = Mo.injectMock(BrowserContextMenuService);
         downloaderRegistryMock = Mo.injectMock(DownloaderRegistry);
         configurationServiceMock = Mo.injectMock(ConfigurationService);
 
@@ -76,7 +77,7 @@ describe("ContextMenuServiceTest", (): void => {
 
         await testee.createContextMenus();
 
-        chromeContextMenuServiceMock.received(1).addContextMenu({
+        browserContextMenuServiceMock.received(1).addContextMenu({
             title: DOWNLOAD_TITLE,
             action: Action.DOWNLOAD,
             urlPatterns: [URL],
@@ -93,8 +94,8 @@ describe("ContextMenuServiceTest", (): void => {
 
         await testee.updateContextMenus();
 
-        chromeContextMenuServiceMock.received(1).clearAllContextMenus();
-        chromeContextMenuServiceMock.received(1).addContextMenu({
+        browserContextMenuServiceMock.received(1).clearAllContextMenus();
+        browserContextMenuServiceMock.received(1).addContextMenu({
             title: DOWNLOAD_TITLE,
             action: Action.DOWNLOAD,
             urlPatterns: [URL],
@@ -108,7 +109,7 @@ describe("ContextMenuServiceTest", (): void => {
 
         await testee.createContextMenus();
 
-        chromeContextMenuServiceMock.didNotReceive().addContextMenu(Arg.all());
+        browserContextMenuServiceMock.didNotReceive().addContextMenu(Arg.all());
     });
 
     test("testCreateContextMenusWithIncompleteCustomConfiguration", async (): Promise<void> => {
@@ -122,12 +123,12 @@ describe("ContextMenuServiceTest", (): void => {
 
         await testee.createContextMenus();
 
-        chromeContextMenuServiceMock.received(1).addContextMenu({
+        browserContextMenuServiceMock.received(1).addContextMenu({
             title: DOWNLOAD_TITLE,
             action: Action.DOWNLOAD,
             urlPatterns: [URL],
             onclick: ACTION_FUNCTION_MOCK
         });
-        chromeContextMenuServiceMock.received(1).addContextMenu(Arg.any());
+        browserContextMenuServiceMock.received(1).addContextMenu(Arg.any());
     });
 });

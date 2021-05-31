@@ -1,5 +1,5 @@
-# Developer's Download Helper - Chrome Extension
-Chrome extension to download files and folders from online file browsers via context menu.
+# Developer's Download Helper - Web Extension
+Web extension to download files and folders from online file browsers via context menu.
 
 ## Supported sites
 * GitHub
@@ -9,7 +9,7 @@ Chrome extension to download files and folders from online file browsers via con
 [Download from Google Chrome Webstore](https://chrome.google.com/webstore/detail/github-download-helper/apchbjkblfhmkohghpnhidldebmpmjnn)
 
 ### Options
-In the options menu you can specify the urls on which the extension should be enabled.
+In the extension option/preferences you can specify the urls on which the extension should be enabled.
 
 ## Build
 To build the extension run
@@ -22,4 +22,4 @@ npm run build
 * [Typescript](https://github.com/microsoft/TypeScript)
 * [tsyringe](https://github.com/microsoft/tsyringe)
 * [webpack](https://github.com/webpack/webpack)
-* [Chrome API](https://developer.chrome.com/extensions/api_index)
+* [WebExt API](https://github.com/Lusito/webextension-polyfill-ts)

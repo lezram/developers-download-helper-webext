@@ -1,11 +1,12 @@
 import {singleton} from "tsyringe";
 import {ContextMenuItem} from "../../model/ContextMenuItem";
+import { browser } from "webextension-polyfill-ts";
 
 @singleton()
-export class ChromeContextMenuService {
+export class BrowserContextMenuService {
 
-    public addContextMenu(contextMenuItem: ContextMenuItem) {
-        chrome.contextMenus.create({
+    public addContextMenu(contextMenuItem: ContextMenuItem): void {
+        browser.contextMenus.create({
             type: "normal",
             title: contextMenuItem.title,
             targetUrlPatterns: contextMenuItem.urlPatterns,
@@ -16,11 +17,7 @@ export class ChromeContextMenuService {
     }
 
     public clearAllContextMenus(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            chrome.contextMenus.removeAll(() => {
-                resolve();
-            });
-        });
+        return browser.contextMenus.removeAll();
 
     }
 }
