@@ -4,7 +4,7 @@ import {JSDOM} from 'jsdom';
 import {Arg, SubstituteOf} from "@fluffy-spoon/substitute";
 import {TestUtil} from "../../test-support/TestUtil";
 import {HtmlOptionsService} from "../../../src/service/option/HtmlOptionsService";
-import {ChromePermissionService} from "../../../src/service/chrome/ChromePermissionService";
+import {BrowserPermissionService} from "../../../src/service/browser/BrowserPermissionService";
 import {ConfigurationService} from "../../../src/service/ConfigurationService";
 import {ExtensionConfiguration} from "../../../src/configuration/ExtensionConfiguration";
 import {DownloaderRegistry} from "../../../src/service/downloader/DownloaderRegistry";
@@ -17,7 +17,7 @@ describe("HtmlOptionsServiceTest", (): void => {
     const DOCUMENT: HTMLDocument = (new JSDOM(`...`)).window.document;
 
     let testee: HtmlOptionsService;
-    let chromePermissionServiceMock: SubstituteOf<ChromePermissionService>;
+    let browserPermissionServiceMock: SubstituteOf<BrowserPermissionService>;
     let configurationServiceMock: SubstituteOf<ConfigurationService>;
     let extensionConfigurationMock: SubstituteOf<ExtensionConfiguration>;
     let downloaderRegistryMock: SubstituteOf<DownloaderRegistry>;
@@ -47,7 +47,7 @@ describe("HtmlOptionsServiceTest", (): void => {
     beforeEach((): void => {
         container.reset();
 
-        chromePermissionServiceMock = Mo.injectMock(ChromePermissionService);
+        browserPermissionServiceMock = Mo.injectMock(BrowserPermissionService);
         configurationServiceMock = Mo.injectMock(ConfigurationService);
         extensionConfigurationMock = Mo.injectMock(ExtensionConfiguration);
         downloaderRegistryMock = Mo.injectMock(DownloaderRegistry);
@@ -150,24 +150,6 @@ describe("HtmlOptionsServiceTest", (): void => {
         configuration.contextMenu.set(Action.DOWNLOAD, {active: true});
 
         configurationServiceMock.received(1).saveConfiguration(configuration);
-    });
-
-    test("testSaveUpdatedOptionsNoPermission", async (): Promise<void> => {
-        chromePermissionServiceMock.requestUrlPermission(Arg.any()).resolves(false);
-        mockSimpleConfiguration();
-
-        const element = DOCUMENT.createElement("div");
-        element.innerHTML = `
-            <input id="service_${DONWLOADER_ID}_url_pattern" value="https://test.localhost/*">
-            <input type="checkbox" id="menu_${Action.DOWNLOAD}_active" checked="checked">
-        `
-
-        const saveOptions = async (): Promise<void> => {
-            await testee.saveUpdatedOptions(element);
-
-        }
-
-        await expect(saveOptions()).rejects.toThrowError();
     });
 
     test("testSaveUpdatedOptionsInvalidUrl", async (): Promise<void> => {

@@ -3,7 +3,7 @@ dist/js
 out
 node_modules
 .DS_Store
-developers-download-helper-chrome.zip
+developers-download-helper.zip
 developers-download-helper.crx
 key.pem
 coverage/

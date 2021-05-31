@@ -26,9 +26,9 @@ export class HtmlDocumentService {
         return element;
     }
 
-    public onClick(id: string, callback: () => Promise<void>): void {
-        this.getElement(id).addEventListener('click', async () => {
-            await callback();
+    public onClick(id: string, callback: () => void): void {
+        this.getElement(id).addEventListener('click', () => {
+            callback();
         });
     }
 

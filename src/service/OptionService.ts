@@ -2,6 +2,7 @@ import {inject, singleton} from "tsyringe";
 import {HtmlOptionsService} from "./option/HtmlOptionsService";
 import {HtmlDocumentService} from "./option/HtmlDocumentService";
 import {HtmlStatusService} from "./option/HtmlStatusService";
+import {PermissionRequestFailedException} from "../exception/PermissionRequestFailedException";
 
 @singleton()
 export class OptionService {
@@ -22,13 +23,22 @@ export class OptionService {
                 .getElement(OptionService.CONTENT_ELEMENT_ID);
             await this.optionsDisplayService.showOptionsHtml(contentElement);
 
-            this.htmlDocumentService.onClick(OptionService.SAVE_ELEMENT_ID, async () => {
-                try {
-                    await this.optionsDisplayService.saveUpdatedOptions(contentElement);
-                    this.showStatus("Options saved");
-                } catch (error) {
-                    this.showStatus("Save options failed", error);
-                }
+            const that = this;
+            this.htmlDocumentService.onClick(OptionService.SAVE_ELEMENT_ID, () => {
+                // Direct call, because some browsers cannot follow the call chain through Promises
+                this.optionsDisplayService.manageUrlPermissions(contentElement).then(async function (urlPermissionGrated) {
+                    try {
+                        if (!urlPermissionGrated) {
+                            throw new PermissionRequestFailedException("Permissions not granted");
+                        }
+                        await that.optionsDisplayService.saveUpdatedOptions(contentElement);
+                        that.showStatus("Options saved");
+                    } catch (error) {
+                        that.showStatus("Save options failed", error);
+                    }
+                }).catch((error) => {
+                    that.showStatus("Save options failed", error);
+                });
             });
         } catch (error) {
             this.showStatus("Unexpected error", error);

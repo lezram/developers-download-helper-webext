@@ -3,15 +3,14 @@ import {ConfigurationService} from "../ConfigurationService";
 import {Util} from "../../util/Util";
 import {DownloaderRegistry} from "../downloader/DownloaderRegistry";
 import {ExtensionConfiguration} from "../../configuration/ExtensionConfiguration";
-import {ChromePermissionService} from "../chrome/ChromePermissionService";
-import {PermissionRequestFailedException} from "../../exception/PermissionRequestFailedException";
+import {BrowserPermissionService} from "../browser/BrowserPermissionService";
 import {InvalidUrlMatchPatternException} from "../../exception/InvalidUrlMatchPatternException";
 
 @singleton()
 export class HtmlOptionsService {
 
     constructor(
-        @inject(ChromePermissionService) private chromePermissionService: ChromePermissionService,
+        @inject(BrowserPermissionService) private browserPermissionService: BrowserPermissionService,
         @inject(ConfigurationService) private configurationService: ConfigurationService,
         @inject(ExtensionConfiguration) private extensionConfiguration: ExtensionConfiguration,
         @inject(DownloaderRegistry) private downloaderRegistry: DownloaderRegistry
@@ -44,7 +43,7 @@ export class HtmlOptionsService {
 
             contextDownloader += `<div class="configuration_block">\n`;
             contextDownloader += `<span class="bold">${downloader.name}</span>\n`;
-            contextDownloader += `<span class="description">Additional ${downloader.name} domains e.g. "https://github.my.com/*, ..."; <a href="https://developer.chrome.com/extensions/match_patterns">URL Pattern</a></span>\n`;
+            contextDownloader += `<span class="description">Additional ${downloader.name} domains e.g. "https://github.my.com/*, ..."; <a href="https://developer.browser.com/extensions/match_patterns">URL Pattern</a></span>\n`;
             contextDownloader += `<input type="text" id="${this.getDownloaderSettingHtmlId(downloader.id)}" title="${downloader.name} Domains" style="width: 100%;" value="${permissionsAsString}">\n`;
             contextDownloader += `</div>\n\n`;
         }
@@ -73,6 +72,33 @@ export class HtmlOptionsService {
         optionsWrapperElement.innerHTML = `<div>${contextDownloader}</div><div class="divider"></div><div>${contextMenuHtml}</div>`;
     }
 
+    public manageUrlPermissions(optionsElement: HTMLElement): Promise<boolean> {
+        const downloadersMetadata = this.downloaderRegistry.getAllDownloadersMetadata();
+
+        let allUrls = [];
+
+        for (const downloader of downloadersMetadata) {
+            const serviceElement: HTMLInputElement = <HTMLInputElement>optionsElement.querySelector(
+                "#" + this.getDownloaderSettingHtmlId(downloader.id)
+            );
+
+            let urls = [];
+            if (serviceElement) {
+                urls = this.getValidUrls(serviceElement.value);
+            }
+
+            allUrls.push(...downloader.configuration.permissions);
+            allUrls.push(...urls);
+        }
+
+        this.browserPermissionService.getAllUrlPermissions().then(async (urlPermissions) => {
+            const difference = urlPermissions.filter(x => !allUrls.includes(x));
+            await this.browserPermissionService.removeUrlPermissions(difference);
+        })
+
+        return this.browserPermissionService.requestUrlPermission(allUrls);
+    }
+
 
     public async saveUpdatedOptions(optionsElement: HTMLElement): Promise<void> {
         const actionItems = this.extensionConfiguration.getActionItems();
@@ -96,15 +122,12 @@ export class HtmlOptionsService {
                     configuration.downloader.set(downloader.id, downloaderConfiguration);
                 }
 
-                // TODO: remove permissions
                 if (urls.length <= 0) {
                     downloaderConfiguration.linkPatterns = [];
                     downloaderConfiguration.permissions = [];
-                } else if (await this.chromePermissionService.requestUrlPermission(urls)) {
+                } else {
                     downloaderConfiguration.linkPatterns = urls;
                     downloaderConfiguration.permissions = urls;
-                } else {
-                    throw new PermissionRequestFailedException("Permissions not granted");
                 }
             }
         }

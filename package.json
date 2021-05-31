@@ -1,10 +1,10 @@
 {
   "name": "developers-download-helper-chrome",
   "version": "0.2.1",
-  "description": "Chrome extension to download files and folders from GitHub and GitLab via context menu.",
+  "description": "Web extension to download files and folders from GitHub and GitLab via context menu.",
   "scripts": {
     "build": "rm -rf dist/js && webpack",
-    "build:zip": "npm run build && bestzip developers-download-helper-chrome.zip dist/",
+    "build:zip": "npm run build && bestzip developers-download-helper.zip dist/",
     "build:crx": "crx pack -o developers-download-helper.crx dist/ -p key.pem",
     "watch": "webpack -w --mode=development",
     "test": "jest",
@@ -23,25 +23,26 @@
   "author": "lezram",
   "license": "MIT",
   "devDependencies": {
-    "@fluffy-spoon/substitute": "^1.118.0",
-    "@types/chrome": "0.0.103",
-    "@types/jest": "^25.2.1",
-    "@types/jsdom": "^16.2.1",
-    "@types/jszip": "^3.1.7",
-    "awesome-typescript-loader": "^5.2.1",
-    "bestzip": "^2.1.5",
+    "@fluffy-spoon/substitute": "^1.208.0",
+    "@types/jest": "^26.0.23",
+    "@types/jsdom": "^16.2.10",
+    "bestzip": "^2.2.0",
     "crx": "^5.0.1",
-    "jest": "^25.3.0",
-    "jsdom": "^16.2.2",
-    "ts-jest": "^25.2.1",
-    "typescript": "^3.9.0",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "jest": "^27.0.3",
+    "jsdom": "^16.6.0",
+    "mockzilla": "^0.9.0",
+    "mockzilla-webextension": "^0.9.0",
+    "ts-jest": "^27.0.2",
+    "ts-loader": "^9.2.2",
+    "typescript": "^4.3.2",
+    "webextension-polyfill-ts": "^0.25.0",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
   },
   "dependencies": {
-    "jszip": "^3.2.2",
+    "jszip": "^3.6.0",
     "reflect-metadata": "^0.1.13",
-    "tsyringe": "^4.1.0"
+    "tsyringe": "^4.5.0"
   },
   "bugs": {
     "url": "https://github.com/lezram/developers-download-helper-chrome/issues"

@@ -1,6 +1,6 @@
 import {container} from "tsyringe";
 import {HtmlStatusService} from "../../../src/service/option/HtmlStatusService";
-import {ChromeRuntimeService} from "../../../src/service/chrome/ChromeRuntimeService";
+import {BrowserRuntimeService} from "../../../src/service/browser/BrowserRuntimeService";
 import {Mo} from "../../test-support/Mo";
 import {JSDOM} from 'jsdom';
 import {SubstituteOf} from "@fluffy-spoon/substitute";
@@ -14,13 +14,13 @@ describe("HtmlStatusServiceTest", (): void => {
     const DOCUMENT: HTMLDocument = (new JSDOM(`...`)).window.document;
 
     let testee: HtmlStatusService;
-    let chromeRuntimeService: SubstituteOf<ChromeRuntimeService>;
+    let browserRuntimeService: SubstituteOf<BrowserRuntimeService>;
 
     beforeEach((): void => {
         container.reset();
 
-        chromeRuntimeService = Mo.injectMock(ChromeRuntimeService);
-        chromeRuntimeService.getHomePageUrl().returns(URL);
+        browserRuntimeService = Mo.injectMock(BrowserRuntimeService);
+        browserRuntimeService.getHomePageUrl().returns(URL);
 
         testee = container.resolve(HtmlStatusService);
     });
@@ -35,8 +35,7 @@ describe("HtmlStatusServiceTest", (): void => {
 
         expect(element.innerHTML).not.toContain(URL);
         expect(element.innerHTML).toContain(MESSAGE);
-
-        expect(setTimeout).toHaveBeenCalledTimes(1);
+        expect(element.style.display).toBe("none");
     });
 
     test("testShowStatusWithDetails", (): void => {
@@ -47,6 +46,7 @@ describe("HtmlStatusServiceTest", (): void => {
         expect(element.innerHTML).toContain(URL);
         expect(element.innerHTML).toContain(MESSAGE);
         expect(element.innerHTML).toContain(DETAILS_TEXT);
+        expect(element.style.display).toBe("inline-block");
     });
 
     test("testShowStatusWithErrorDetails", (): void => {

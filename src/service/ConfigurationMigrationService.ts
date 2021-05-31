@@ -1,5 +1,5 @@
 import {inject, singleton} from "tsyringe";
-import {ChromeStorageService} from "./chrome/ChromeStorageService";
+import {BrowserStorageService} from "./browser/BrowserStorageService";
 import {Configuration} from "../model/Configuration";
 import {DeprecatedConfiguration} from "../model/DeprecatedConfiguration";
 import {GitLabDownloader} from "./downloader/gitlab/GitLabDownloader";
@@ -12,14 +12,14 @@ import {DownloaderMetadata} from "../model/DownloaderMetadata";
 @singleton()
 export class ConfigurationMigrationService {
 
-    constructor(@inject(ChromeStorageService) private chromeStorageService: ChromeStorageService,
+    constructor(@inject(BrowserStorageService) private browserStorageService: BrowserStorageService,
                 @inject(DownloaderRegistry) private downloaderRegistry: DownloaderRegistry) {
     }
 
     public async migrateConfigurationIfNeeded(): Promise<boolean> {
         let migrationNeeded = false;
 
-        const deprecatedConfiguration = await this.chromeStorageService.load<DeprecatedConfiguration>([
+        const deprecatedConfiguration = await this.browserStorageService.load<DeprecatedConfiguration>([
             "urls", "gitlaburls", "contextMenu"
         ]);
 
@@ -72,8 +72,8 @@ export class ConfigurationMigrationService {
                 rawConfiguration.downloader = [...configuration.downloader];
             }
 
-            await this.chromeStorageService.clearStorage();
-            await this.chromeStorageService.save(rawConfiguration);
+            await this.browserStorageService.clearStorage();
+            await this.browserStorageService.save(rawConfiguration);
         }
 
         return migrationNeeded;

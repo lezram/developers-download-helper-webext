@@ -9,62 +9,103 @@ import {HtmlStatusService} from "../../src/service/option/HtmlStatusService";
 describe("OptionServiceTest", (): void => {
 
     let testee: OptionService;
-    let optionDisplayServiceMock: SubstituteOf<HtmlOptionsService>;
+    let htmlOptionsServiceMock: SubstituteOf<HtmlOptionsService>;
     let htmlStatusServiceMock: SubstituteOf<HtmlStatusService>;
     let htmlDocumentServiceMock: SubstituteOf<HtmlDocumentService>;
 
+    let assertOnStatusUpdate: (assert: () => void) => void = (assert: () => void)=>{};
+
     beforeEach((): void => {
         container.reset();
-
-        optionDisplayServiceMock = Mo.injectMock(HtmlOptionsService);
+        htmlOptionsServiceMock = Mo.injectMock(HtmlOptionsService);
         htmlStatusServiceMock = Mo.injectMock(HtmlStatusService);
         htmlDocumentServiceMock = Mo.injectMock(HtmlDocumentService);
 
         testee = container.resolve(OptionService);
+
+        assertOnStatusUpdate = (assert: () => void) => {
+            expect.assertions(1);
+            htmlStatusServiceMock.showStatus(Arg.all()).mimicks(() => {
+                expect(true).toBeTruthy();
+
+                assert();
+            });
+            htmlDocumentServiceMock.onClick(Arg.any(), Arg.any()).mimicks((id, callback) => {
+                callback();
+            });
+        }
     });
 
     test("testShowAndHandleOptions", async (): Promise<void> => {
 
         await testee.showAndHandleOptions();
 
-        optionDisplayServiceMock.received(1).showOptionsHtml(Arg.any());
+        htmlOptionsServiceMock.received(1).showOptionsHtml(Arg.any());
     });
 
     test("testShowAndHandleOptionsFailed", async (): Promise<void> => {
-        optionDisplayServiceMock.showOptionsHtml(Arg.any()).throws(new Error("test"));
+        assertOnStatusUpdate(() => {
+            htmlOptionsServiceMock.received(1).showOptionsHtml(Arg.any());
+            htmlStatusServiceMock.received(1).showStatus(Arg.any(), Arg.any(), Arg.is((value) => Boolean(value)))
+            htmlStatusServiceMock.received(0).showStatus(Arg.any(), Arg.any(), Arg.is((value) => value === undefined))
+        });
+
+        htmlOptionsServiceMock.showOptionsHtml(Arg.any()).throws(new Error("test"));
 
         await testee.showAndHandleOptions();
-
-        optionDisplayServiceMock.received(1).showOptionsHtml(Arg.any());
-        htmlStatusServiceMock.received(1).showStatus(Arg.any(), Arg.any(), Arg.is((value) => Boolean(value)))
-        htmlStatusServiceMock.received(0).showStatus(Arg.any(), Arg.any(), Arg.is((value) => value === undefined))
-
     });
 
     test("testShowAndHandleOptionsClickSaveSuccess", async (): Promise<void> => {
-        htmlDocumentServiceMock.onClick(Arg.any(), Arg.any()).mimicks((id, callback) => {
-            callback();
+        assertOnStatusUpdate(() => {
+            htmlOptionsServiceMock.received(1).showOptionsHtml(Arg.any());
+            htmlOptionsServiceMock.received(1).saveUpdatedOptions(Arg.any());
+            htmlStatusServiceMock.received(1).showStatus(Arg.any(), Arg.any(), Arg.is((value) => value === undefined));
         });
+
+        htmlOptionsServiceMock.saveUpdatedOptions(Arg.any()).resolves();
+        htmlOptionsServiceMock.manageUrlPermissions(Arg.any()).resolves(true);
 
         await testee.showAndHandleOptions();
 
-        optionDisplayServiceMock.received(1).showOptionsHtml(Arg.any());
-        optionDisplayServiceMock.received(1).saveUpdatedOptions(Arg.any());
-        htmlStatusServiceMock.received(1).showStatus(Arg.any(), Arg.any(), Arg.is((value) => value === undefined))
     });
 
     test("testShowAndHandleOptionsClickSaveFailed", async (): Promise<void> => {
-        optionDisplayServiceMock.saveUpdatedOptions(Arg.any()).throws(new Error("test"));
-
-        htmlDocumentServiceMock.onClick(Arg.any(), Arg.any()).mimicks((id, callback) => {
-            callback();
+        assertOnStatusUpdate(() => {
+            htmlOptionsServiceMock.received(1).showOptionsHtml(Arg.any());
+            htmlOptionsServiceMock.received(1).saveUpdatedOptions(Arg.any());
+            htmlStatusServiceMock.received(1).showStatus(Arg.any(), Arg.any(), Arg.is((value) => Boolean(value)))
+            htmlStatusServiceMock.received(0).showStatus(Arg.any(), Arg.any(), Arg.is((value) => value === undefined));
         });
 
-        await testee.showAndHandleOptions();
+        htmlOptionsServiceMock.saveUpdatedOptions(Arg.any()).throws(new Error("test"));
+        htmlOptionsServiceMock.manageUrlPermissions(Arg.any()).resolves(true);
 
-        optionDisplayServiceMock.received(1).showOptionsHtml(Arg.any());
-        optionDisplayServiceMock.received(1).saveUpdatedOptions(Arg.any());
-        htmlStatusServiceMock.received(1).showStatus(Arg.any(), Arg.any(), Arg.is((value) => Boolean(value)))
-        htmlStatusServiceMock.received(0).showStatus(Arg.any(), Arg.any(), Arg.is((value) => value === undefined))
+        await testee.showAndHandleOptions();
+    });
+
+    test("testShowAndHandleOptionsClickSavePermissionsNotGranted", async (): Promise<void> => {
+        assertOnStatusUpdate(() => {
+            htmlOptionsServiceMock.received(1).showOptionsHtml(Arg.any());
+            htmlOptionsServiceMock.didNotReceive().saveUpdatedOptions(Arg.any());
+            htmlStatusServiceMock.received(1).showStatus(Arg.any(), Arg.any(), Arg.is((value) => Boolean(value)))
+            htmlStatusServiceMock.didNotReceive().showStatus(Arg.any(), Arg.any(), Arg.is((value) => value === undefined));
+        });
+
+        htmlOptionsServiceMock.manageUrlPermissions(Arg.any()).resolves(false);
+
+        await testee.showAndHandleOptions();
+    });
+
+    test("testShowAndHandleOptionsClickSavePermissionsFailed", async (): Promise<void> => {
+        assertOnStatusUpdate(() => {
+            htmlOptionsServiceMock.received(1).showOptionsHtml(Arg.any());
+            htmlOptionsServiceMock.didNotReceive().saveUpdatedOptions(Arg.any());
+            htmlStatusServiceMock.received(1).showStatus(Arg.any(), Arg.any(), Arg.is((value) => Boolean(value)))
+            htmlStatusServiceMock.didNotReceive().showStatus(Arg.any(), Arg.any(), Arg.is((value) => value === undefined));
+        });
+
+        htmlOptionsServiceMock.manageUrlPermissions(Arg.any()).throws(new Error(""));
+
+        await testee.showAndHandleOptions();
     });
 });

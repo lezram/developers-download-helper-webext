@@ -29,4 +29,22 @@ export class Util {
         return Boolean(host);
     }
 
+    public static convertDataUriToBlob(dataUri: string): Blob {
+        const dataUriParts = dataUri.split(',');
+        const dataType = dataUriParts[0];
+        const encodedData = dataUriParts[1];
+
+        const mimeString = dataType.split(':')[1].split(';')[0]
+        const data = atob(encodedData);
+
+        const dataBuffer = new ArrayBuffer(data.length);
+        const bufferWrapper = new Uint8Array(dataBuffer);
+
+        for (let i = 0; i < data.length; i++) {
+            bufferWrapper[i] = data.charCodeAt(i);
+        }
+
+        return new Blob([dataBuffer], {type: mimeString});
+    }
+
 }

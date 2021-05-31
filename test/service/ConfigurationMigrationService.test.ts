@@ -1,7 +1,7 @@
 import {container} from "tsyringe";
 import {ConfigurationMigrationService} from "../../src/service/ConfigurationMigrationService";
 import {Mo} from "../test-support/Mo";
-import {ChromeStorageService} from "../../src/service/chrome/ChromeStorageService";
+import {BrowserStorageService} from "../../src/service/browser/BrowserStorageService";
 import {DownloaderRegistry} from "../../src/service/downloader/DownloaderRegistry";
 import {Arg, SubstituteOf} from "@fluffy-spoon/substitute";
 import {Downloader} from "../../src/service/downloader/Downloader";
@@ -13,13 +13,13 @@ describe("ConfigurationMigrationServiceTest", (): void => {
     const URL = "https://test1.localhost/" + TestUtil.randomString() + "/*";
 
     let testee: ConfigurationMigrationService;
-    let chromeStorageServiceMock: SubstituteOf<ChromeStorageService>;
+    let browserStorageServiceMock: SubstituteOf<BrowserStorageService>;
     let downloaderRegistryMock: SubstituteOf<DownloaderRegistry>;
 
     beforeEach((): void => {
         container.reset();
 
-        chromeStorageServiceMock = Mo.injectMock(ChromeStorageService);
+        browserStorageServiceMock = Mo.injectMock(BrowserStorageService);
         downloaderRegistryMock = Mo.injectMock(DownloaderRegistry);
 
         testee = container.resolve(ConfigurationMigrationService);
@@ -37,7 +37,7 @@ describe("ConfigurationMigrationServiceTest", (): void => {
             }
         });
         downloaderRegistryMock.getDownloader(Arg.any()).returns(downloaderMock);
-        chromeStorageServiceMock.load(Arg.any()).resolves({
+        browserStorageServiceMock.load(Arg.any()).resolves({
             urls: [URL, DEFAULT_URL],
             gitlaburls: [URL],
             contextMenu: {
@@ -50,12 +50,12 @@ describe("ConfigurationMigrationServiceTest", (): void => {
 
         expect(migrationNeeded).toBeTruthy();
 
-        chromeStorageServiceMock.received(1).clearStorage();
-        chromeStorageServiceMock.received(1).save(Arg.any());
+        browserStorageServiceMock.received(1).clearStorage();
+        browserStorageServiceMock.received(1).save(Arg.any());
     });
 
     test("testMigrateConfigurationIfNeededNoMigration", async (): Promise<void> => {
-        chromeStorageServiceMock.load(Arg.any()).resolves(null);
+        browserStorageServiceMock.load(Arg.any()).resolves(null);
 
         const migrationNeeded = await testee.migrateConfigurationIfNeeded();
 

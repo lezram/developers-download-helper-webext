@@ -3,7 +3,7 @@ import {SubstituteOf} from "@fluffy-spoon/substitute";
 import {OptionService} from "../src/service/OptionService";
 import {Mo} from "./test-support/Mo";
 
-describe("chrome-options Test", () => {
+describe("options Test", () => {
 
     let optionServiceMock: SubstituteOf<OptionService>;
 
@@ -14,7 +14,7 @@ describe("chrome-options Test", () => {
     });
 
     test("test", async () => {
-        require("../src/chrome-options");
+        require("../src/options");
 
         optionServiceMock.received(1).showAndHandleOptions();
     });

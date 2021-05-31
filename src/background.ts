@@ -1,5 +1,5 @@
 /**
- *  Chrome background runner
+ *  Background runner
  */
 import "reflect-metadata";
 import {container} from "tsyringe";

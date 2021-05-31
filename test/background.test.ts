@@ -3,7 +3,7 @@ import {SubstituteOf} from "@fluffy-spoon/substitute";
 import {BackgroundService} from "../src/service/BackgroundService";
 import {Mo} from "./test-support/Mo";
 
-describe("chrome-background Test", () => {
+describe("browser-background Test", () => {
 
     let backgroundServiceMock: SubstituteOf<BackgroundService>;
 
@@ -13,7 +13,7 @@ describe("chrome-background Test", () => {
     });
 
     test("test", async () => {
-        require("../src/chrome-background");
+        require("../src/background");
 
         backgroundServiceMock.received(1).run();
     });

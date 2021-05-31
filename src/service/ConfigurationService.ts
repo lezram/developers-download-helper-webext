@@ -1,7 +1,7 @@
 import {inject, singleton} from "tsyringe";
 import {Configuration, ContextMenuItemConfiguration, DownloaderConfiguration} from "../model/Configuration";
 import {ExtensionConfiguration} from "../configuration/ExtensionConfiguration";
-import {ChromeStorageService} from "./chrome/ChromeStorageService";
+import {BrowserStorageService} from "./browser/BrowserStorageService";
 import {ConfigurationMigrationService} from "./ConfigurationMigrationService";
 import {Util} from "../util/Util";
 import {ActionItemMetadata} from "../model/ActionItemMetadata";
@@ -14,7 +14,7 @@ export class ConfigurationService {
 
     constructor(@inject(ExtensionConfiguration) private extensionConfiguration: ExtensionConfiguration,
                 @inject(ConfigurationMigrationService) private configurationMigrationService: ConfigurationMigrationService,
-                @inject(ChromeStorageService) private chromeStorageService: ChromeStorageService,
+                @inject(BrowserStorageService) private browserStorageService: BrowserStorageService,
     ) {
     }
 
@@ -22,7 +22,7 @@ export class ConfigurationService {
         const migrationNeeded = await this.configurationMigrationService.migrateConfigurationIfNeeded();
 
         if (migrationNeeded || Util.isNull(this.configurationCache)) {
-            const rawConfiguration = await this.chromeStorageService.load<Configuration>(Object.keys(new Configuration()));
+            const rawConfiguration = await this.browserStorageService.load<Configuration>(Object.keys(new Configuration()));
 
             const configuration = new Configuration();
 
@@ -59,11 +59,11 @@ export class ConfigurationService {
         }
 
         this.configurationCache = null;
-        await this.chromeStorageService.save(rawConfiguration);
+        await this.browserStorageService.save(rawConfiguration);
     }
 
     public addConfigurationChangeListener(onConfigurationChange: (configuration: Configuration) => Promise<void>) {
-        this.chromeStorageService.addOnChangeListener(async (changes, namespace) => {
+        this.browserStorageService.addOnChangeListener(async (changes, namespace) => {
             this.configurationCache = null;
             const configuration = await this.getConfiguration();
             await onConfigurationChange(configuration);

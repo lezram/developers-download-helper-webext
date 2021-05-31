@@ -93,5 +93,4 @@ describe("UtilTest", () => {
         let isValid = Util.isUrlMatchPatternValid("file:///*");
         expect(isValid).toBeFalsy();
     });
-
 });
