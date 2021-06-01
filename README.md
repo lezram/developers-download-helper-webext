@@ -2,16 +2,16 @@
 Web extension to download files and folders from online file browsers via context menu.
 
 ## Supported sites
-* GitHub
-* GitLab
+* :octocat: GitHub
+* 🦊 GitLab
 
-## Tested browsers
-* Chrome
-* Firefox
+## Installation
+* [Google Chrome Webstore](https://chrome.google.com/webstore/detail/github-download-helper/apchbjkblfhmkohghpnhidldebmpmjnn)
+* [Firefox Add-Ons](https://addons.mozilla.org/en-US/firefox/addon/developers-download-helper/)
+
+Download zip from the [latest release](https://github.com/lezram/developers-download-helper-webext/releases/latest) and import it in your browser.
 
 ## Usage
-[Download from Google Chrome Webstore](https://chrome.google.com/webstore/detail/github-download-helper/apchbjkblfhmkohghpnhidldebmpmjnn)
-
 ### Options
 In the extension option/preferences you can specify the urls on which the extension should be enabled.
 
@@ -31,6 +31,8 @@ For chromium
 ```sh
 npm run build:crx
 ```
+
+
 
 ## Thanks to ...
 * [JSZip](https://github.com/Stuk/jszip)
