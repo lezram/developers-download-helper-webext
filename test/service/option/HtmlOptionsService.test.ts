@@ -114,6 +114,41 @@ describe("HtmlOptionsServiceTest", (): void => {
         expect(element).not.toBeNull();
     });
 
+    test("testManageUrlPermissionsRequestsSubdomainsOfCustomDomains", async (): Promise<void> => {
+        mockSimpleConfiguration();
+        browserPermissionServiceMock.getAllUrlPermissions().resolves([]);
+        browserPermissionServiceMock.requestUrlPermission(Arg.any()).resolves(true);
+
+        const element = DOCUMENT.createElement("div");
+        element.innerHTML = `
+            <input id="service_${DONWLOADER_ID}_url_pattern" value="https://github.my.com/*">
+        `
+
+        const granted = await testee.manageUrlPermissions(element);
+
+        expect(granted).toBeTruthy();
+        browserPermissionServiceMock.received(1).requestUrlPermission([
+            DEFAULT_URL,
+            "https://github.my.com/*",
+            "https://*.github.my.com/*"
+        ]);
+    });
+
+    test("testManageUrlPermissionsWithoutCustomDomains", async (): Promise<void> => {
+        mockSimpleConfiguration();
+        browserPermissionServiceMock.getAllUrlPermissions().resolves([]);
+        browserPermissionServiceMock.requestUrlPermission(Arg.any()).resolves(true);
+
+        const element = DOCUMENT.createElement("div");
+        element.innerHTML = `
+            <input id="service_${DONWLOADER_ID}_url_pattern" value="">
+        `
+
+        await testee.manageUrlPermissions(element);
+
+        browserPermissionServiceMock.received(1).requestUrlPermission([DEFAULT_URL]);
+    });
+
     test("testSaveUpdatedOptions", async (): Promise<void> => {
         mockSimpleConfiguration();
 
@@ -166,6 +201,6 @@ describe("HtmlOptionsServiceTest", (): void => {
 
         }
 
-        await expect(saveOptions()).rejects.toThrowError();
+        await expect(saveOptions()).rejects.toThrow();
     });
 });

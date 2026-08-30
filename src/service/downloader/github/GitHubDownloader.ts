@@ -10,6 +10,10 @@ import {ResourceNotAccessibleException} from "../../../exception/ResourceNotAcce
 @singleton()
 export class GitHubDownloader implements Downloader {
     public static readonly ID = "gh";
+    private static readonly MANIFEST_PERMISSIONS = [
+        "https://*.github.com/*",
+        "https://*.githubusercontent.com/*",
+    ];
 
     public async getFile(data: ActionData): Promise<FileWrapper> {
         if (!data || !data.url) {
@@ -49,6 +53,8 @@ export class GitHubDownloader implements Downloader {
             filename = githubURL.filePath.split("/").pop().replace(/^[.]+/g, "");
         } else if (githubURL.fileType === GitHubFileType.TREE) {
             filename = (githubURL.filePath.split("/").pop()) + ".zip";
+        } else {
+            filename = githubURL.repository + ".zip";
         }
 
         if (githubURL.fileType == GitHubFileType.ZIPBALL ||
@@ -70,11 +76,7 @@ export class GitHubDownloader implements Downloader {
             name: "GitHub",
             configuration: {
                 linkPatterns: ["https://github.com/*/*"],
-                permissions: [
-                    /* set in manifest.json! */
-                    "https://*.github.com/*",
-                    "https://*.githubusercontent.com/*",
-                ]
+                permissions: [...GitHubDownloader.MANIFEST_PERMISSIONS]
             },
             allowCustomUrls: true,
         };

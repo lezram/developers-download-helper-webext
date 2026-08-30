@@ -1,7 +1,9 @@
 import {container} from "tsyringe";
 import {BrowserNotificationService} from "../../../src/service/browser/BrowserNotificationService";
+import * as browserMock from "../../test-support/BrowserMock";
 
 describe("BrowserNotificationServiceTest", (): void => {
+    const EXTENSION_URL = "chrome-extension://test/";
 
     let testee: BrowserNotificationService;
 
@@ -12,31 +14,64 @@ describe("BrowserNotificationServiceTest", (): void => {
     });
 
     test("testShowErrorNotification", async (): Promise<void> => {
-        mockBrowser.notifications.create.expect.andResolve("").times(1);;
+        browserMock.runtime.getURL.mockImplementation((path: string) => EXTENSION_URL + path);
 
-        await expect(testee.showErrorNotification("test", "test")).resolves
+        await expect(testee.showErrorNotification("test", "test")).resolves.toBeUndefined();
+
+        expect(browserMock.notifications.create).toHaveBeenCalledTimes(1);
+        expect(browserMock.notifications.create).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+            iconUrl: EXTENSION_URL + "images/icon-red-48.png"
+        }));
     });
 
     test("testShowProgressNotification", async (): Promise<void> => {
-        mockBrowser.notifications.create.expect.andResolve("").times(1);;
+        browserMock.runtime.getURL.mockImplementation((path: string) => EXTENSION_URL + path);
 
-        await expect(testee.showProgressNotification(10, "test", "test")).resolves
+        const notificationId = await testee.showProgressNotification("test", "test");
+
+        expect(notificationId).toBeTruthy();
+        expect(browserMock.notifications.create).toHaveBeenCalledTimes(1);
+        expect(browserMock.notifications.create).toHaveBeenCalledWith(notificationId, expect.objectContaining({
+            iconUrl: EXTENSION_URL + "images/icon-48.png"
+        }));
     });
 
-    // test("testUpdateProgressNotification", (): Promise<void> => {
-    //     mockBrowser.notifications.update.expect.andResolve("");
-    //
-    //     await expect(testee.updateProgressNotification("id", 10, "test", "test")).toBeCalledTimes(1);
-    // });
+    test("testUpdateProgressNotificationWithUpdateSupport", async (): Promise<void> => {
+        browserMock.runtime.getURL.mockImplementation((path: string) => EXTENSION_URL + path);
+        browserMock.notifications.update.mockResolvedValue(true);
+
+        const notificationId = await testee.showProgressNotification("test", "test");
+
+        await expect(testee.updateProgressNotification(notificationId, "test1", "test2")).resolves.toBe(notificationId);
+
+        expect(browserMock.notifications.update).toHaveBeenCalledWith(notificationId, expect.objectContaining({
+            type: "basic",
+            message: "test2"
+        }));
+        expect(browserMock.notifications.create).toHaveBeenCalledTimes(1);
+    });
+
+    test("testUpdateProgressNotificationWithoutUpdateSupport", async (): Promise<void> => {
+        browserMock.runtime.getURL.mockImplementation((path: string) => EXTENSION_URL + path);
+        browserMock.notifications.update.mockResolvedValue(false);
+
+        const notificationId = await testee.showProgressNotification("test", "test");
+        const updatedNotificationId = await testee.updateProgressNotification(notificationId, "test1", "test2");
+
+        expect(updatedNotificationId).toBeTruthy();
+        expect(updatedNotificationId).not.toBe(notificationId);
+        expect(browserMock.notifications.clear).toHaveBeenCalledWith(notificationId);
+        expect(browserMock.notifications.create).toHaveBeenCalledTimes(2);
+    });
 
     test("testClearNotifications", async (): Promise<void> => {
-        mockBrowser.notifications.create.expect.andResolve("").times(2);
-        mockBrowser.notifications.clear.expect.andResolve(true).times(2);
+        await testee.showProgressNotification("test", "test");
+        await testee.showProgressNotification("test1", "test2");
 
-        await testee.showProgressNotification(10, "test", "test");
-        await testee.showProgressNotification(10, "test1", "test2");
+        await expect(testee.clearNotifications()).resolves.toBeUndefined();
 
-        await expect(testee.clearNotifications()).resolves
+        expect(browserMock.notifications.create).toHaveBeenCalledTimes(2);
+        expect(browserMock.notifications.clear).toHaveBeenCalledTimes(2);
     });
 
 });

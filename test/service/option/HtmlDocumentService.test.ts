@@ -32,7 +32,7 @@ describe("HtmlDocumentServiceTest", (): void => {
             testee.getElement("def");
         }
 
-        expect(getElement).toThrowError(HtmlElementNotFoundException);
+        expect(getElement).toThrow(HtmlElementNotFoundException);
     });
 
     test("testGetElementDocumentNotExisting", (): void => {
@@ -44,7 +44,7 @@ describe("HtmlDocumentServiceTest", (): void => {
             testee.getElement("def");
         }
 
-        expect(getElement).toThrowError(IllegalArgumentException);
+        expect(getElement).toThrow(IllegalArgumentException);
     });
 
 
@@ -59,7 +59,7 @@ describe("HtmlDocumentServiceTest", (): void => {
         });
         document.getElementById(id).click();
 
-        expect(fn).toBeCalledTimes(1);
+        expect(fn).toHaveBeenCalledTimes(1);
     });
 
     test("testOnClickElementNotExisting", (): void => {
@@ -74,7 +74,7 @@ describe("HtmlDocumentServiceTest", (): void => {
             });
         }
 
-        expect(addOnClickEvent).toThrowError(HtmlElementNotFoundException);
+        expect(addOnClickEvent).toThrow(HtmlElementNotFoundException);
     });
 
 });

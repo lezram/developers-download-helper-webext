@@ -101,7 +101,7 @@ describe("ConfigurationServiceTest", (): void => {
 
         await Promise.all([callbackPromise]);
 
-        expect(callbackMock).toBeCalledTimes(1);
+        expect(callbackMock).toHaveBeenCalledTimes(1);
         browserStorageServiceMock.received(1).addOnChangeListener(Arg.any());
         browserStorageServiceMock.received(1).load(Arg.any());
     });

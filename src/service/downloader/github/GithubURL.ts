@@ -1,10 +1,14 @@
 import {FileType} from "./FileType";
 import {Utils} from "./Utils";
-import * as ZIP from "jszip";
+import ZIP = require("jszip");
 import {UrlBuilder} from "./UrlBuilder";
 
 export default class GithubURL {
-    private _link: HTMLAnchorElement;
+    private static readonly MATCH_PARTS_WITH_FILE_PATH = 6;
+    private static readonly MATCH_PARTS_WITH_BRANCH = 5;
+    private static readonly MATCH_PARTS_WITHOUT_BRANCH = 3;
+
+    private _link: URL;
     private _user: string;
     private _repository: string;
     private _fileType: string;
@@ -12,38 +16,36 @@ export default class GithubURL {
     private _filePath: string;
 
     constructor(url: string) {
-        this._link = <HTMLAnchorElement>document.createElement('a');
-        this._link.href = url;
+        this._link = new URL(url);
 
         let regex: RegExp = /^\/([^\/]+)\/([^\/]+)\/?([^\/]+)?\/?([^\/]+)?\/?(.*)?$/g;
         let match: RegExpExecArray = regex.exec(this._link.pathname);
 
-        if (match) {
-            let matchLength: number = Utils.getMatchLength(match);
-            if (matchLength === 6) {
-                // .../1:user/2:repo/3:type/4:branch/5:path
-                this._user = match[1];
-                this._repository = match[2];
-                this._fileType = match[3];
-                this._branch = match[4];
-                this._filePath = match[5];
-            } else if (matchLength === 5) {
-                // .../1:user/2:repo/3:type/4:branch
-                this._user = match[1];
-                this._repository = match[2];
-                this._fileType = FileType.ZIPBALL;
-                this._branch = match[4];
-                this._filePath = null;
-            } else if (matchLength === 3) {
-                // .../1:user/2:repo
-                this._user = match[1];
-                this._repository = match[2];
-                this._fileType = FileType.ZIPBALL;
-                this._branch = null;
-                this._filePath = null;
-            } else {
-                throw new Error("Invalid URL " + url);
-            }
+        if (!match) {
+            throw new Error("Invalid URL " + url);
+        }
+
+        const [, user, repository, fileType, branch, filePath] = match;
+        const matchLength: number = Utils.getMatchLength(match);
+
+        if (matchLength === GithubURL.MATCH_PARTS_WITH_FILE_PATH) {
+            this._user = user;
+            this._repository = repository;
+            this._fileType = fileType;
+            this._branch = branch;
+            this._filePath = filePath;
+        } else if (matchLength === GithubURL.MATCH_PARTS_WITH_BRANCH) {
+            this._user = user;
+            this._repository = repository;
+            this._fileType = FileType.ZIPBALL;
+            this._branch = branch;
+            this._filePath = null;
+        } else if (matchLength === GithubURL.MATCH_PARTS_WITHOUT_BRANCH) {
+            this._user = user;
+            this._repository = repository;
+            this._fileType = FileType.ZIPBALL;
+            this._branch = null;
+            this._filePath = null;
         } else {
             throw new Error("Invalid URL " + url);
         }
@@ -79,113 +81,85 @@ export default class GithubURL {
 
         if (this._filePath && this._fileType == FileType.BLOB) {
             urlBuilder.slash(FileType.RAW);
+            urlBuilder.slash(this._branch || "master");
+            urlBuilder.slash(this._filePath);
         } else {
             urlBuilder.slash(FileType.ZIPBALL);
+            urlBuilder.slash(this._branch || "master");
         }
-
-        urlBuilder.slash(this._branch || "master");
-        urlBuilder.slash(this._filePath);
 
         return urlBuilder.build();
     }
 
 
-    protected createUrlEncodedZip(url: string) {
-        return new Promise((resolveParent, rejectParent) => {
-            let xhr = new XMLHttpRequest();
-            xhr.open("GET", url);
-            xhr.responseType = 'arraybuffer';
-            xhr.onload = () => {
-                let arrayBuffer = xhr.response;
+    protected async extractFolderOfZipAsDataUri(url: string): Promise<string> {
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
 
-                if (!arrayBuffer) {
-                    rejectParent({
-                        status: xhr.status,
-                        statusText: xhr.statusText
-                    });
-                }
-
-
-                let zipLoader = new ZIP();
-                zipLoader.loadAsync(arrayBuffer).then((zip) => {
-                    let foldernameInZip = Utils.getFirstKey(zip.files) + this._filePath;
-
-                    if (!foldernameInZip) {
-                        rejectParent(null);
-                    }
-
-                    let newZip = new ZIP();
-                    zip.folder(foldernameInZip).forEach(function (relativePath, file) {
-                        newZip.file(relativePath, file.async("arraybuffer"));
-                    });
-
-                    let options: ZIP.JSZipGeneratorOptions = {
-                        type: "base64",
-                        mimeType: "application/zip"
-                    };
-
-                    newZip.generateAsync(options).then(function (base64) {
-                        let dataURL = 'data:application/zip;base64,' + base64;
-                        resolveParent(dataURL);
-                    });
-                });
+        if (!arrayBuffer) {
+            throw {
+                status: response.status,
+                statusText: response.statusText
             };
-            xhr.onerror = function () {
-                rejectParent({
-                    status: xhr.status,
-                    statusText: xhr.statusText
-                });
-            };
-            xhr.send();
-        });
-    }
+        }
 
-    getDownloadUrl() {
-        return new Promise((resolve, reject) => {
-            let request: XMLHttpRequest = new XMLHttpRequest();
-            request.onreadystatechange = () => {
+        const zip = await new ZIP().loadAsync(arrayBuffer);
 
-                if (request.readyState == 4) {
-                    let downloadUrl = null;
+        let foldernameInZip = Utils.getFirstKey(zip.files) + this._filePath;
 
-                    if (request.status == 200) {
-                        let data: any = JSON.parse(request.responseText);
+        if (!foldernameInZip) {
+            throw null;
+        }
 
-                        if (data.hasOwnProperty("archive_url")) {
-                            downloadUrl = Utils.mustache(data.archive_url, {
-                                "archive_format": FileType.ZIPBALL,
-                                "/ref": "/" + (this._branch || "")
-                            });
-                        } else if (data.hasOwnProperty("download_url")) {
-                            downloadUrl = data.download_url;
-                        } else if (this._fileType == FileType.TREE && data instanceof Array) {
-                            if (data.length <= 0) {
-                                reject();
-                            }
-                        }
-                    }
-
-                    if (!downloadUrl) {
-                        downloadUrl = this.getFallbackDownloadUrl();
-                    }
-
-                    if (this._fileType == FileType.TREE) {
-                        this.createUrlEncodedZip(downloadUrl).then(urlEncodedZip => {
-                            resolve(urlEncodedZip);
-                        });
-                    } else {
-                        resolve(downloadUrl);
-                    }
-                }
-            };
-            request.open("GET", this.getApiUrl());
-            request.send();
+        let newZip = new ZIP();
+        zip.folder(foldernameInZip).forEach(function (relativePath, file) {
+            newZip.file(relativePath, file.async("arraybuffer"));
         });
 
+        let options: ZIP.JSZipGeneratorOptions<'base64'> = {
+            type: "base64",
+            mimeType: "application/zip"
+        };
 
+        const base64 = await newZip.generateAsync(options);
+
+        return 'data:application/zip;base64,' + base64;
     }
 
-    get link(): HTMLAnchorElement {
+    async getDownloadUrl(): Promise<string> {
+        let downloadUrl = null;
+
+        const response = await fetch(this.getApiUrl());
+
+        if (response.status == 200) {
+            let data: any = await response.json();
+
+            if (data.hasOwnProperty("archive_url")) {
+                downloadUrl = Utils.mustache(data.archive_url, {
+                    "archive_format": FileType.ZIPBALL,
+                    "/ref": "/" + (this._branch || "")
+                });
+            } else if (data.hasOwnProperty("download_url")) {
+                downloadUrl = data.download_url;
+            } else if (this._fileType == FileType.TREE && data instanceof Array) {
+                if (data.length <= 0) {
+                    throw new Error("Resource not found " + this._link.href);
+                }
+            }
+        }
+
+        if (!downloadUrl) {
+            downloadUrl = this.getFallbackDownloadUrl();
+        }
+
+        if (this._fileType == FileType.TREE) {
+            return await this.extractFolderOfZipAsDataUri(downloadUrl);
+        }
+
+        return downloadUrl;
+    }
+
+    get link(): URL {
         return this._link;
     }
 

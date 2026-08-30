@@ -51,7 +51,7 @@ describe("ContextMenuActionServiceTest", (): void => {
         });
         browserDownloadServiceMock.received(1).downloadFile(Arg.any(), true);
         browserNotificationServiceMock.received(2).updateProgressNotification(Arg.all());
-        browserNotificationServiceMock.received(1).clearNotifications();
+        browserNotificationServiceMock.received(0).clearNotifications();
     });
 
     test("testGetMenuItemActionDownload", async (): Promise<void> => {
@@ -75,7 +75,7 @@ describe("ContextMenuActionServiceTest", (): void => {
         });
         browserDownloadServiceMock.received(1).downloadFile(Arg.any(), false);
         browserNotificationServiceMock.received(2).updateProgressNotification(Arg.all());
-        browserNotificationServiceMock.received(1).clearNotifications();
+        browserNotificationServiceMock.received(0).clearNotifications();
     });
 
     test("testGetMenuItemActionGetFileFailed", async (): Promise<void> => {
@@ -94,7 +94,7 @@ describe("ContextMenuActionServiceTest", (): void => {
         }, null);
 
         browserNotificationServiceMock.received(1).showProgressNotification(Arg.all());
-        browserNotificationServiceMock.received(1).clearNotifications();
+        browserNotificationServiceMock.received(0).clearNotifications();
         browserNotificationServiceMock.received(1).showErrorNotification(Arg.all());
         browserDownloadServiceMock.received(0).downloadFile(Arg.any(), true);
     });
@@ -115,7 +115,7 @@ describe("ContextMenuActionServiceTest", (): void => {
         }, null);
 
         browserNotificationServiceMock.received(1).showProgressNotification(Arg.all());
-        browserNotificationServiceMock.received(1).clearNotifications();
+        browserNotificationServiceMock.received(0).clearNotifications();
         browserNotificationServiceMock.received(1).showErrorNotification(Arg.all());
         browserDownloadServiceMock.received(0).downloadFile(Arg.any(), true);
     });
@@ -141,7 +141,7 @@ describe("ContextMenuActionServiceTest", (): void => {
             url: URL_OBJ
         });
         browserDownloadServiceMock.received(1).downloadFile(Arg.any(), true);
-        browserNotificationServiceMock.received(1).clearNotifications();
+        browserNotificationServiceMock.received(0).clearNotifications();
         browserNotificationServiceMock.received(1).showErrorNotification(Arg.all());
     });
 
@@ -166,7 +166,7 @@ describe("ContextMenuActionServiceTest", (): void => {
             url: URL_OBJ
         });
         browserDownloadServiceMock.received(1).downloadFile(Arg.any(), true);
-        browserNotificationServiceMock.received(1).clearNotifications();
+        browserNotificationServiceMock.received(0).clearNotifications();
         browserNotificationServiceMock.received(1).showErrorNotification(Arg.all());
     });
 

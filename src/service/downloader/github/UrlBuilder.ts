@@ -1,17 +1,8 @@
 export class UrlBuilder {
-    private link: HTMLAnchorElement;
+    private link: URL;
 
-    constructor(url: HTMLAnchorElement|string) {
-        let element: HTMLAnchorElement;
-        if (url instanceof HTMLAnchorElement) {
-            element = <HTMLAnchorElement> url.cloneNode();
-        }
-        else {
-            element = <HTMLAnchorElement> document.createElement('a');
-            element.href = url;
-        }
-
-        this.link = element;
+    constructor(url: URL | string) {
+        this.link = new URL(url instanceof URL ? url.href : url);
     }
 
     public removePath(): UrlBuilder {
