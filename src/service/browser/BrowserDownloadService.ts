@@ -1,7 +1,7 @@
-import {singleton} from "tsyringe";
-import {FileType, FileWrapper} from "../../model/FileWrapper";
-import {browser} from "webextension-polyfill-ts";
-import {Util} from "../../util/Util";
+import { singleton } from "tsyringe";
+import { FileType, FileWrapper } from "../../model/FileWrapper";
+import * as browser from "webextension-polyfill";
+import { Util } from "../../util/Util";
 
 @singleton()
 export class BrowserDownloadService {
@@ -12,13 +12,13 @@ export class BrowserDownloadService {
         if (file.type === FileType.URL) {
             url = file.content;
 
-            if (this.isDataUri(url)) {
+            if (this.isDataUri(url) && Util.isObjectUrlSupported()) {
                 const blob = Util.convertDataUriToBlob(url);
                 url = URL.createObjectURL(blob);
             }
         } else {
-            const blob = new Blob([file.content], {type: "application/octet-stream"});
-            url = URL.createObjectURL(blob);
+            const blob = new Blob([file.content], { type: "application/octet-stream" });
+            url = await Util.createDownloadUrl(blob);
         }
 
         const filename = file.name.replace(/^[.]+/, "");
@@ -32,8 +32,8 @@ export class BrowserDownloadService {
 
 
     private isDataUri(url) {
-        return url //
-            && url.startsWith("data:") //
+        return url
+            && url.startsWith("data:")
             && url.split(',').length === 2;
     }
 }

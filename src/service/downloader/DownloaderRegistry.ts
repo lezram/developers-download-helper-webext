@@ -7,8 +7,7 @@ import {DownloaderMetadata} from "../../model/DownloaderMetadata";
 @singleton()
 @registry([
     {token: DOWNLOADER, useToken: GitHubDownloader},
-    {token: DOWNLOADER, useToken: GitLabDownloader},
-    // Add new downloader classes here
+    {token: DOWNLOADER, useToken: GitLabDownloader}
 ])
 export class DownloaderRegistry {
     private downloaders: Map<string, Downloader> = new Map();

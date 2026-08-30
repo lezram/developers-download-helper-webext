@@ -1,5 +1,5 @@
-import {singleton} from "tsyringe";
-import {browser} from "webextension-polyfill-ts";
+import { singleton } from "tsyringe";
+import * as browser from "webextension-polyfill";
 
 @singleton()
 export class BrowserPermissionService {
@@ -16,6 +16,6 @@ export class BrowserPermissionService {
     }
 
     public async removeUrlPermissions(urls: string[]): Promise<boolean> {
-        return browser.permissions.remove({origins: urls});
+        return browser.permissions.remove({ origins: urls });
     }
 }

@@ -1,7 +1,8 @@
 import {inject, singleton} from "tsyringe";
 import {DownloaderConfiguration,} from "../../model/Configuration";
 import {ContextMenuActionService} from "./ContextMenuActionService";
-import {ContextMenuItem, ContextOnClickAction} from "../../model/ContextMenuItem";
+import {ContextMenuItem, ContextMenuItemId} from "../../model/ContextMenuItem";
+import {Menus, Tabs} from "webextension-polyfill";
 import {DownloaderRegistry} from "../downloader/DownloaderRegistry";
 import {ConfigurationService} from "../ConfigurationService";
 import {ActionItemMetadata} from "../../model/ActionItemMetadata";
@@ -19,14 +20,32 @@ export class ContextMenuService {
     ) {
     }
 
+    public registerContextMenuClickListener(): void {
+        this.browserContextMenuService.addOnClickListener(async (info: Menus.OnClickData, tab: Tabs.Tab): Promise<void> => {
+            await this.handleContextMenuClick(info, tab);
+        });
+    }
+
     public async createContextMenus(): Promise<void> {
+        await this.browserContextMenuService.clearAllContextMenus();
+
         await this.addAllActionContextMenuItems();
     }
 
     public async updateContextMenus(): Promise<void> {
-        await this.browserContextMenuService.clearAllContextMenus();
+        await this.createContextMenus();
+    }
 
-        await this.addAllActionContextMenuItems();
+    private async handleContextMenuClick(info: Menus.OnClickData, tab: Tabs.Tab): Promise<void> {
+        const menuItem = ContextMenuItemId.parse("" + info.menuItemId);
+
+        if (!menuItem) {
+            return;
+        }
+
+        const clickAction = this.contextMenuActionService.getMenuItemAction(menuItem.action, menuItem.downloaderId);
+
+        await clickAction(info, tab);
     }
 
     private async addAllActionContextMenuItems(): Promise<void> {
@@ -47,13 +66,11 @@ export class ContextMenuService {
                 if (this.isDownloaderEnabled(downloader, downloaderConfiguration)) {
                     let linkPatterns = this.getLinkPatterns(downloader, downloaderConfiguration);
 
-                    const clickAction: ContextOnClickAction = this.contextMenuActionService.getMenuItemAction(item.id, downloader.id);
-
                     contextMenuItems.push({
+                        id: ContextMenuItemId.create(item.id, downloader.id),
                         action: item.id,
                         title: item.title,
-                        urlPatterns: linkPatterns,
-                        onclick: clickAction
+                        urlPatterns: linkPatterns
                     });
                 }
 

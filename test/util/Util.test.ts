@@ -93,4 +93,84 @@ describe("UtilTest", () => {
         let isValid = Util.isUrlMatchPatternValid("file:///*");
         expect(isValid).toBeFalsy();
     });
+
+    test("testToSubdomainUrlMatchPattern", async () => {
+        let pattern = Util.toSubdomainUrlMatchPattern("https://github.my.com/*");
+
+        expect(pattern).toEqual("https://*.github.my.com/*");
+    });
+
+    test("testToSubdomainUrlMatchPatternKeepsPath", async () => {
+        let pattern = Util.toSubdomainUrlMatchPattern("https://github.my.com/user/*");
+
+        expect(pattern).toEqual("https://*.github.my.com/user/*");
+    });
+
+    test("testToSubdomainUrlMatchPatternAlreadyWithSubdomains", async () => {
+        let pattern = Util.toSubdomainUrlMatchPattern("https://*.github.my.com/*");
+
+        expect(pattern).toBeNull();
+    });
+
+    test("testToSubdomainUrlMatchPatternWithoutFixedHost", async () => {
+        let pattern = Util.toSubdomainUrlMatchPattern("*://*/*");
+
+        expect(pattern).toBeNull();
+    });
+
+    test("testToSubdomainUrlMatchPatternInvalidUrl", async () => {
+        let pattern = Util.toSubdomainUrlMatchPattern("testabsc");
+
+        expect(pattern).toBeNull();
+    });
+
+    test("testConvertBlobToDataUri", async () => {
+        const blob = new Blob(["abcdefg"], {type: "application/zip"});
+
+        const dataUri = await Util.convertBlobToDataUri(blob);
+
+        expect(dataUri).toBe("data:application/zip;base64," + Buffer.from("abcdefg").toString("base64"));
+    });
+
+    test("testConvertBlobToDataUriWithoutType", async () => {
+        const blob = new Blob(["abcdefg"]);
+
+        const dataUri = await Util.convertBlobToDataUri(blob);
+
+        expect(dataUri).toBe("data:application/octet-stream;base64," + Buffer.from("abcdefg").toString("base64"));
+    });
+
+    test("testConvertDataUriToBlobAndBack", async () => {
+        const dataUri = await Util.convertBlobToDataUri(new Blob(["abcdefg"], {type: "application/zip"}));
+
+        const dataUriOfBlob = await Util.convertBlobToDataUri(Util.convertDataUriToBlob(dataUri));
+
+        expect(dataUriOfBlob).toBe(dataUri);
+    });
+
+    test("testCreateDownloadUrlWithObjectUrlSupport", async () => {
+        const createObjectURL = global.URL.createObjectURL;
+        global.URL.createObjectURL = jest.fn().mockReturnValue("blob:test");
+
+        try {
+            const url = await Util.createDownloadUrl(new Blob(["abcdefg"]));
+
+            expect(url).toBe("blob:test");
+        } finally {
+            global.URL.createObjectURL = createObjectURL;
+        }
+    });
+
+    test("testCreateDownloadUrlWithoutObjectUrlSupport", async () => {
+        const createObjectURL = global.URL.createObjectURL;
+        global.URL.createObjectURL = undefined;
+
+        try {
+            const url = await Util.createDownloadUrl(new Blob(["abcdefg"]));
+
+            expect(url).toBe("data:application/octet-stream;base64," + Buffer.from("abcdefg").toString("base64"));
+        } finally {
+            global.URL.createObjectURL = createObjectURL;
+        }
+    });
 });

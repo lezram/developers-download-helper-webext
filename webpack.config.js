@@ -1,11 +1,13 @@
 const path = require('path');
 
-module.exports = {
+module.exports = (env, argv) => ({
     entry: {
         options: path.join(__dirname, 'src/options.ts'),
         background: path.join(__dirname, 'src/background.ts')
     },
     mode: "production",
+    // eval based source maps are not allowed by the manifest v3 content security policy
+    devtool: argv.mode === "development" ? "source-map" : false,
     module: {
         rules: [
             {
@@ -28,4 +30,4 @@ module.exports = {
         path: path.join(__dirname, 'dist/js'),
         filename: '[name].js'
     },
-};
+});

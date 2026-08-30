@@ -1,5 +1,6 @@
 import {container} from "tsyringe";
 import {BrowserStorageService} from "../../../src/service/browser/BrowserStorageService";
+import * as browserMock from "../../test-support/BrowserMock";
 
 describe("BrowserStorageServiceTest", (): void => {
 
@@ -12,51 +13,57 @@ describe("BrowserStorageServiceTest", (): void => {
     });
 
     test("testSave", async (): Promise<void> => {
-        mockBrowser.storage.sync.set.expect.times(1);
+        await expect(testee.save({key: "value"})).resolves.toEqual({key: "value"});
 
-        await expect(testee.save("")).resolves;
+        expect(browserMock.storage.sync.set).toHaveBeenCalledWith({key: "value"});
     });
 
     test("testSaveFailed", async (): Promise<void> => {
         const error = new Error("");
-        mockBrowser.storage.sync.set.expect.andReject(error).times(1);
+        browserMock.storage.sync.set.mockRejectedValue(error);
 
-        await expect(testee.save("")).rejects.toBe(error);
+        await expect(testee.save({key: "value"})).rejects.toBe(error);
     });
 
     test("testLoad", async (): Promise<void> => {
-        mockBrowser.storage.sync.get.expect.times(1);
+        browserMock.storage.sync.get.mockResolvedValue({key: "value"});
 
-        await expect(testee.load("")).resolves;
+        await expect(testee.load("key")).resolves.toEqual({key: "value"});
+
+        expect(browserMock.storage.sync.get).toHaveBeenCalledWith("key");
     });
 
     test("testLoadFailed", async (): Promise<void> => {
         const error = new Error("");
-        mockBrowser.storage.sync.get.expect.andReject(error).times(1);
+        browserMock.storage.sync.get.mockRejectedValue(error);
 
-        await expect(testee.load("")).rejects.toBe(error);
+        await expect(testee.load("key")).rejects.toBe(error);
     });
 
     test("testClearStorage", async (): Promise<void> => {
-        mockBrowser.storage.sync.clear.expect.times(1);
+        await expect(testee.clearStorage()).resolves.toBeUndefined();
 
-        await expect(testee.clearStorage()).resolves;
+        expect(browserMock.storage.sync.clear).toHaveBeenCalledTimes(1);
     });
 
     test("testClearStorageFailed", async (): Promise<void> => {
         const error = new Error("");
-        mockBrowser.storage.sync.clear.expect.andReject(error).times(1);
+        browserMock.storage.sync.clear.mockRejectedValue(error);
 
         await expect(testee.clearStorage()).rejects.toBe(error);
     });
 
     test("testAddOnChangeListener", async (): Promise<void> => {
-        mockBrowser.storage.onChanged.addListener.expect.times(1);
+        const onChange = jest.fn();
 
-        const result = testee.addOnChangeListener(async (changes, namespace): Promise<void> => {
-        });
+        testee.addOnChangeListener(onChange);
 
-        await expect(result).resolves;
+        expect(browserMock.storage.onChanged.addListener).toHaveBeenCalledTimes(1);
+
+        const registeredListener = browserMock.storage.onChanged.addListener.mock.calls[0][0];
+        await registeredListener({key: "value"}, "sync");
+
+        expect(onChange).toHaveBeenCalledWith({key: "value"}, "sync");
     });
 
 });

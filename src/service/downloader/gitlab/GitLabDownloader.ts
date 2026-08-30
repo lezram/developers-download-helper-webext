@@ -1,14 +1,16 @@
-import {Downloader} from "../Downloader";
-import {FileType, FileWrapper} from "../../../model/FileWrapper";
-import {ActionData} from "../../../model/ActionData";
-import {singleton} from "tsyringe";
-import * as ZIP from "jszip";
-import {DownloaderMetadata} from "../../../model/DownloaderMetadata";
-import {ResourceNotAccessibleException} from "../../../exception/ResourceNotAccessibleException";
+import { Downloader } from "../Downloader";
+import { FileType, FileWrapper } from "../../../model/FileWrapper";
+import { ActionData } from "../../../model/ActionData";
+import { singleton } from "tsyringe";
+import ZIP = require("jszip");
+import { DownloaderMetadata } from "../../../model/DownloaderMetadata";
+import { ResourceNotAccessibleException } from "../../../exception/ResourceNotAccessibleException";
+import { Util } from "../../../util/Util";
 
 @singleton()
 export class GitLabDownloader implements Downloader {
     public static readonly ID = "gl";
+    private static readonly MANIFEST_PERMISSIONS = ["https://gitlab.com/*"];
 
     public async getFile(data: ActionData): Promise<FileWrapper> {
         const url = data.url;
@@ -29,11 +31,10 @@ export class GitLabDownloader implements Downloader {
         };
 
         if (file.absolutefilename === "") {
-            // https://gitlab.com/gitlab-com/support-forum/issues/3067
             return {
                 type: FileType.URL,
                 name: "archive.zip",
-                content: `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/archive.zip`,
+                content: GitLabDownloader.getRepositoryArchiveUrl(file),
             };
         }
 
@@ -41,13 +42,13 @@ export class GitLabDownloader implements Downloader {
         switch (file.type) {
             case 'tree':
                 try {
-                    return GitLabDownloader.download_zip(file);
+                    return GitLabDownloader.downloadZip(file);
                 } catch (error) {
                     throw new ResourceNotAccessibleException("Request resource failed", error);
                 }
             case 'blob':
                 try {
-                    return GitLabDownloader.download_file(file);
+                    return GitLabDownloader.downloadFile(file);
                 } catch (error) {
                     throw new ResourceNotAccessibleException("Request resource failed", error);
                 }
@@ -63,30 +64,21 @@ export class GitLabDownloader implements Downloader {
             name: "GitLab",
             configuration: {
                 linkPatterns: ["https://gitlab.com/*/*"],
-                permissions: [
-                    /* set in manifest.json! */
-                    "https://gitlab.com/*"
-                ]
+                permissions: [...GitLabDownloader.MANIFEST_PERMISSIONS]
             },
             allowCustomUrls: true,
         };
     }
 
-    private static async download_file(file) {
-        // find hash of file
-        let url = `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/tree?path=${encodeURIComponent(file.path)}&per_page=100`;
-        if (file.branch) {
-            url += `&ref=${encodeURIComponent(file.branch)}`;
-        }
-        let tree = await (await fetch(url, {credentials: 'include'})).json();
-        let sha = tree.filter(f => f.name === file.filename)[0].id;
+    private static async downloadFile(file) {
+        const sha = await GitLabDownloader.fetchFileHash(file);
 
         let filename = file.filename;
         if (filename) {
             filename = filename.replace(/^[.]+/g, "");
         }
 
-        const blobFile = await fetch(`${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/blobs/${sha}/raw`, {credentials: 'include'});
+        const blobFile = await fetch(GitLabDownloader.getBlobUrl(file, sha), { credentials: 'include' });
         const theFile = await blobFile.blob();
 
         return {
@@ -96,50 +88,76 @@ export class GitLabDownloader implements Downloader {
         }
     }
 
-    private static async download_zip(file) {
-        // get tree
-        // FIXME: fails silently when tree has more than 100 elements
-        let url = `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/tree?recursive=true&per_page=100`;
-        if (file.branch) {
-            url += `&ref=${encodeURIComponent(file.branch)}`;
-        }
-        let offset = 1;
-        if (file.absolutefilename) {
-            url += `&path=${encodeURIComponent(file.absolutefilename)}`;
-            offset += file.absolutefilename.length;
-        }
+    private static async downloadZip(file) {
+        const tree = await GitLabDownloader.fetchTree(file);
+        const blobs = GitLabDownloader.fetchBlobs(file, tree);
+        const folderPathLength = file.absolutefilename ? file.absolutefilename.length + 1 : 1;
 
-        let data = await (await fetch(url, {credentials: 'include'})).json();
-
-        // download files
-        let blobs = data
-            .filter(object => object.type == 'blob')
-            .map((object) => {
-                return {
-                    content: fetch(`${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/blobs/${object.id}/raw`, {credentials: 'include'})
-                        .then(res => res.blob()),
-                    ...object
-                };
-            });
-
-        // create zip file
-        let zip = new ZIP();
-        for (const blob of blobs) {
-            let relativeName = blob.path.substr(offset);
-            zip.file(relativeName, await blob.content);
-        }
-
-        let options: ZIP.JSZipGeneratorOptions = {
-            type: "blob",
-            mimeType: "application/zip"
-        };
-        let blob = await zip.generateAsync(options);
-
+        const blob = await GitLabDownloader.createZip(blobs, folderPathLength);
 
         return {
             type: FileType.URL,
             name: file.filename.replace(/^\./, "") + ".zip",
-            content: URL.createObjectURL(blob),
+            content: await Util.createDownloadUrl(blob),
         }
+    }
+
+    private static async fetchFileHash(file): Promise<string> {
+        let url = `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/tree?path=${encodeURIComponent(file.path)}&per_page=100`;
+        if (file.branch) {
+            url += `&ref=${encodeURIComponent(file.branch)}`;
+        }
+
+        const tree = await (await fetch(url, { credentials: 'include' })).json();
+
+        return tree.filter(f => f.name === file.filename)[0].id;
+    }
+
+    // FIXME: fails silently when the tree has more than 100 elements
+    private static async fetchTree(file) {
+        let url = `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/tree?recursive=true&per_page=100`;
+        if (file.branch) {
+            url += `&ref=${encodeURIComponent(file.branch)}`;
+        }
+        if (file.absolutefilename) {
+            url += `&path=${encodeURIComponent(file.absolutefilename)}`;
+        }
+
+        return (await fetch(url, { credentials: 'include' })).json();
+    }
+
+    private static fetchBlobs(file, tree) {
+        return tree
+            .filter(object => object.type == 'blob')
+            .map((object) => {
+                return {
+                    content: fetch(GitLabDownloader.getBlobUrl(file, object.id), { credentials: 'include' })
+                        .then(res => res.blob()),
+                    ...object
+                };
+            });
+    }
+
+    private static async createZip(blobs, folderPathLength: number): Promise<Blob> {
+        const zip = new ZIP();
+        for (const blob of blobs) {
+            const relativeName = blob.path.substr(folderPathLength);
+            zip.file(relativeName, await blob.content);
+        }
+
+        const options: ZIP.JSZipGeneratorOptions<'blob'> = {
+            type: "blob",
+            mimeType: "application/zip"
+        };
+
+        return zip.generateAsync(options);
+    }
+
+    private static getRepositoryArchiveUrl(file): string {
+        return `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/archive.zip`;
+    }
+
+    private static getBlobUrl(file, sha: string): string {
+        return `${file.origin}/api/v4/projects/${encodeURIComponent(file.reponame)}/repository/blobs/${sha}/raw`;
     }
 }

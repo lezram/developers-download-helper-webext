@@ -1,5 +1,6 @@
 import {container} from "tsyringe";
 import {BrowserRuntimeService} from "../../../src/service/browser/BrowserRuntimeService";
+import * as browserMock from "../../test-support/BrowserMock";
 
 describe("BrowserRuntimeServiceTest", (): void => {
     const URL: string = "https://test.localhost/";
@@ -13,30 +14,39 @@ describe("BrowserRuntimeServiceTest", (): void => {
     });
 
     test("testGetHomePageUrl", (): void => {
-        mockBrowser.runtime.getManifest.expect.andReturn({
+        browserMock.runtime.getManifest.mockReturnValue({
             homepage_url: URL,
-            manifest_version: 0,
+            manifest_version: 3,
             name: "",
             version: ""
-        }).times(1)
+        });
 
         let url = testee.getHomePageUrl();
 
         expect(url).toBe(URL);
+        expect(browserMock.runtime.getManifest).toHaveBeenCalledTimes(1);
     });
 
     test("testGetHomePageUrlEmpty", (): void => {
-        mockBrowser.runtime.getManifest.expect.andReturn({
+        browserMock.runtime.getManifest.mockReturnValue({
             homepage_url: null,
-            manifest_version: 0,
+            manifest_version: 3,
             name: "",
             version: ""
-        }).times(1)
-
+        });
 
         let url = testee.getHomePageUrl();
 
         expect(url).toBe("");
+        expect(browserMock.runtime.getManifest).toHaveBeenCalledTimes(1);
+    });
+
+    test("testOpenOptionsPage", async (): Promise<void> => {
+        browserMock.runtime.openOptionsPage.mockResolvedValue(undefined);
+
+        await expect(testee.openOptionsPage()).resolves.toBeUndefined();
+
+        expect(browserMock.runtime.openOptionsPage).toHaveBeenCalledTimes(1);
     });
 
 });

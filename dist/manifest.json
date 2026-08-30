@@ -1,46 +1,51 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Developer's Download Helper",
   "short_name": "DeDoHe",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Download files and folders from GitHub or GitLab via context menu.",
   "homepage_url": "https://github.com/lezram/developers-download-helper-webext",
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
   "icons": {
     "16": "images/icon-16.png",
     "48": "images/icon-48.png",
     "128": "images/icon-128.png"
   },
-  "browser_action": {
+  "action": {
     "default_icon": "images/icon-48.png",
     "default_title": "Developer's Download Helper"
   },
   "background": {
+    "service_worker": "js/background.js",
     "scripts": [
       "js/background.js"
     ]
   },
   "options_ui": {
-    "page": "options.html",
-    "chrome_style": true
+    "page": "options.html"
   },
   "permissions": [
     "activeTab",
     "contextMenus",
     "downloads",
     "storage",
-    "notifications",
+    "notifications"
+  ],
+  "host_permissions": [
     "https://*.github.com/*",
     "https://*.githubusercontent.com/*",
     "https://gitlab.com/*"
   ],
-  "optional_permissions": [
+  "optional_host_permissions": [
     "<all_urls>"
   ],
+  "minimum_chrome_version": "108",
   "browser_specific_settings": {
     "gecko": {
       "id": "extension@lezram.com",
-      "strict_min_version": "57.0"
+      "strict_min_version": "121.0"
     }
   }
 }

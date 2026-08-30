@@ -3,7 +3,9 @@
     "target": "es6",
     "module": "commonjs",
     "removeComments": false,
+    "strict": false,
     "noImplicitAny": false,
+    "rootDir": "./src",
     "outDir": "dist/js",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true

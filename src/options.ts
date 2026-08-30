@@ -1,6 +1,3 @@
-/**
- *  Options script, which is used in option.html
- */
 import "reflect-metadata";
 import {container} from "tsyringe";
 import {OptionService} from "./service/OptionService";

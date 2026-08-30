@@ -1,4 +1,7 @@
 export class Util {
+    private static readonly SUBDOMAIN_WILDCARD = "*.";
+    private static readonly FROM_CHAR_CODE_ARGUMENT_LIMIT = 0x8000;
+
     public static isNotNull(value: any) {
         return !Util.isNull(value);
     }
@@ -22,11 +25,26 @@ export class Util {
             return false;
         }
 
-        // let scheme = match[1];
-        let host = match[2];
-        // path = match[3];
+        const host = match[2];
 
         return Boolean(host);
+    }
+
+    public static toSubdomainUrlMatchPattern(url: string): string {
+        let regex = new RegExp("^(\\*|http|https|file|ftp)://((?:\\*\\.)?[^/*]+)/(.*)$");
+        let match = regex.exec(url || "");
+
+        if (!match) {
+            return null;
+        }
+
+        const [, scheme, host, path] = match;
+
+        if (host.startsWith(Util.SUBDOMAIN_WILDCARD)) {
+            return null;
+        }
+
+        return scheme + "://" + Util.SUBDOMAIN_WILDCARD + host + "/" + path;
     }
 
     public static convertDataUriToBlob(dataUri: string): Blob {
@@ -45,6 +63,30 @@ export class Util {
         }
 
         return new Blob([dataBuffer], {type: mimeString});
+    }
+
+    public static async convertBlobToDataUri(blob: Blob): Promise<string> {
+        const data = new Uint8Array(await blob.arrayBuffer());
+
+        let binary = "";
+        for (let offset = 0; offset < data.length; offset += Util.FROM_CHAR_CODE_ARGUMENT_LIMIT) {
+            binary += String.fromCharCode.apply(null,
+                data.subarray(offset, offset + Util.FROM_CHAR_CODE_ARGUMENT_LIMIT));
+        }
+
+        return `data:${blob.type || "application/octet-stream"};base64,${btoa(binary)}`;
+    }
+
+    public static isObjectUrlSupported(): boolean {
+        return typeof URL !== "undefined" && typeof URL.createObjectURL === "function";
+    }
+
+    public static async createDownloadUrl(blob: Blob): Promise<string> {
+        if (Util.isObjectUrlSupported()) {
+            return URL.createObjectURL(blob);
+        }
+
+        return Util.convertBlobToDataUri(blob);
     }
 
 }

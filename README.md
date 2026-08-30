@@ -39,4 +39,4 @@ npm run build:crx
 * [Typescript](https://github.com/microsoft/TypeScript)
 * [tsyringe](https://github.com/microsoft/tsyringe)
 * [webpack](https://github.com/webpack/webpack)
-* [WebExt API](https://github.com/Lusito/webextension-polyfill-ts)
+* [WebExt API](https://github.com/mozilla/webextension-polyfill)

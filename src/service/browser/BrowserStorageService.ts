@@ -1,15 +1,15 @@
-import {singleton} from "tsyringe";
-import { browser } from "webextension-polyfill-ts";
+import { singleton } from "tsyringe";
+import * as browser from "webextension-polyfill";
 
 @singleton()
 export class BrowserStorageService {
 
-    public async load<T>(keys: string | string[] | T | null): Promise<T> {
-        return <T> await browser.storage.sync.get(keys);
+    public async load<T>(keys: string | string[] | Record<string, any> | null): Promise<T> {
+        return <T>await browser.storage.sync.get(keys);
     }
 
     public async save<T>(data: T): Promise<T> {
-        await browser.storage.sync.set(data)
+        await browser.storage.sync.set(<Record<string, any>>data)
         return data;
     }
 

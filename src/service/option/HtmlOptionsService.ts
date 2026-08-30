@@ -39,11 +39,9 @@ export class HtmlOptionsService {
                 permissionsAsString = downloaderConfiguration.permissions.join(', ');
             }
 
-            // TODO: const linkPatternsAsString = downloaderConfiguration.linkPatterns.join(', ');
-
             contextDownloader += `<div class="configuration_block">\n`;
             contextDownloader += `<span class="bold">${downloader.name}</span>\n`;
-            contextDownloader += `<span class="description">Additional ${downloader.name} domains e.g. "https://github.my.com/*, ..."; <a href="https://developer.browser.com/extensions/match_patterns">URL Pattern</a></span>\n`;
+            contextDownloader += `<span class="description">Additional ${downloader.name} domains e.g. "https://github.my.com/*, ..."; subdomains like "raw.github.my.com" are included automatically; <a href="https://developer.browser.com/extensions/match_patterns">URL Pattern</a></span>\n`;
             contextDownloader += `<input type="text" id="${this.getDownloaderSettingHtmlId(downloader.id)}" title="${downloader.name} Domains" style="width: 100%;" value="${permissionsAsString}">\n`;
             contextDownloader += `</div>\n\n`;
         }
@@ -88,7 +86,7 @@ export class HtmlOptionsService {
             }
 
             allUrls.push(...downloader.configuration.permissions);
-            allUrls.push(...urls);
+            allUrls.push(...this.withSubdomainPatterns(urls));
         }
 
         this.browserPermissionService.getAllUrlPermissions().then(async (urlPermissions) => {
@@ -151,6 +149,26 @@ export class HtmlOptionsService {
         }
 
         await this.configurationService.saveConfiguration(configuration);
+    }
+
+    /**
+     * A custom domain may redirect to one of its subdomains, e.g. a raw file link on
+     * "github.my.com" redirects to "raw.github.my.com" and an archive link to
+     * "codeload.github.my.com". Without a permission for those hosts the request is
+     * blocked by CORS, so the subdomains are requested as well.
+     */
+    private withSubdomainPatterns(urls: string[]): string[] {
+        const patterns = [...urls];
+
+        for (const url of urls) {
+            const subdomainPattern = Util.toSubdomainUrlMatchPattern(url);
+
+            if (subdomainPattern && !patterns.includes(subdomainPattern)) {
+                patterns.push(subdomainPattern);
+            }
+        }
+
+        return patterns;
     }
 
     private getValidUrls(urlRawValue: string): string[] {

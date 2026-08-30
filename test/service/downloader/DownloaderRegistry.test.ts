@@ -34,7 +34,7 @@ describe("DownloaderRegistryTest", (): void => {
             container.resolve(DownloaderRegistry);
         }
 
-        expect(initializeRegistry).toThrowError();
+        expect(initializeRegistry).toThrow();
     });
 
     test("testDownloaderRegistryFailedNoMetadata", async (): Promise<void> => {
@@ -46,7 +46,7 @@ describe("DownloaderRegistryTest", (): void => {
             container.resolve(DownloaderRegistry);
         }
 
-        expect(initializeRegistry).toThrowError();
+        expect(initializeRegistry).toThrow();
     });
 
     test("testDownloaderRegistryFailedDuplicateId", async (): Promise<void> => {
@@ -57,7 +57,7 @@ describe("DownloaderRegistryTest", (): void => {
             container.resolve(DownloaderRegistry);
         }
 
-        expect(initializeRegistry).toThrowError();
+        expect(initializeRegistry).toThrow();
     });
 
     test("testGetDownloader", async (): Promise<void> => {
@@ -78,7 +78,7 @@ describe("DownloaderRegistryTest", (): void => {
             testee.getDownloader("");
         };
 
-        expect(getDownloader).toThrowError();
+        expect(getDownloader).toThrow();
     });
 
     test("testGetAllDownloadersMetadata", async (): Promise<void> => {

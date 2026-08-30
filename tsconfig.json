@@ -3,10 +3,14 @@
     "target": "es6",
     "module": "commonjs",
     "removeComments": false,
+    "strict": false,
     "noImplicitAny": false,
     "outDir": "out",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "types": [
+      "jest"
+    ]
   },
   "include": [
     "src/**/*.ts",

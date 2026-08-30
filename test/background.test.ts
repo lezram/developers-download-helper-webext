@@ -15,6 +15,7 @@ describe("browser-background Test", () => {
     test("test", async () => {
         require("../src/background");
 
+        backgroundServiceMock.received(1).registerListeners();
         backgroundServiceMock.received(1).run();
     });
 });

@@ -1,15 +1,16 @@
-import {container} from "tsyringe";
-import {Arg, SubstituteOf} from "@fluffy-spoon/substitute";
-import {ContextMenuActionService} from "../../../src/service/context-menu/ContextMenuActionService";
-import {BrowserContextMenuService} from "../../../src/service/browser/BrowserContextMenuService";
-import {ContextMenuService} from "../../../src/service/context-menu/ContextMenuService";
-import {Action} from "../../../src/model/Action";
-import {Mo} from "../../test-support/Mo";
-import {DownloaderRegistry} from "../../../src/service/downloader/DownloaderRegistry";
-import {ConfigurationService} from "../../../src/service/ConfigurationService";
-import {ActionItemMetadata} from "../../../src/model/ActionItemMetadata";
-import {DownloaderMetadata} from "../../../src/model/DownloaderMetadata";
-import {Menus, Tabs} from "webextension-polyfill-ts";
+import { container } from "tsyringe";
+import { Arg, SubstituteOf } from "@fluffy-spoon/substitute";
+import { ContextMenuActionService } from "../../../src/service/context-menu/ContextMenuActionService";
+import { BrowserContextMenuService } from "../../../src/service/browser/BrowserContextMenuService";
+import { ContextMenuService } from "../../../src/service/context-menu/ContextMenuService";
+import { Action } from "../../../src/model/Action";
+import { Mo } from "../../test-support/Mo";
+import { DownloaderRegistry } from "../../../src/service/downloader/DownloaderRegistry";
+import { ConfigurationService } from "../../../src/service/ConfigurationService";
+import { ActionItemMetadata } from "../../../src/model/ActionItemMetadata";
+import { DownloaderMetadata } from "../../../src/model/DownloaderMetadata";
+import { ContextMenuItemId, ContextOnClickAction } from "../../../src/model/ContextMenuItem";
+import { Menus, Tabs } from "webextension-polyfill";
 import OnClickData = Menus.OnClickData;
 
 describe("ContextMenuServiceTest", (): void => {
@@ -78,10 +79,10 @@ describe("ContextMenuServiceTest", (): void => {
         await testee.createContextMenus();
 
         browserContextMenuServiceMock.received(1).addContextMenu({
+            id: ContextMenuItemId.create(Action.DOWNLOAD, DOWNLOADER.id),
             title: DOWNLOAD_TITLE,
             action: Action.DOWNLOAD,
-            urlPatterns: [URL],
-            onclick: ACTION_FUNCTION_MOCK
+            urlPatterns: [URL]
         });
     });
 
@@ -96,10 +97,10 @@ describe("ContextMenuServiceTest", (): void => {
 
         browserContextMenuServiceMock.received(1).clearAllContextMenus();
         browserContextMenuServiceMock.received(1).addContextMenu({
+            id: ContextMenuItemId.create(Action.DOWNLOAD, DOWNLOADER.id),
             title: DOWNLOAD_TITLE,
             action: Action.DOWNLOAD,
-            urlPatterns: [URL],
-            onclick: ACTION_FUNCTION_MOCK
+            urlPatterns: [URL]
         });
     });
 
@@ -124,11 +125,45 @@ describe("ContextMenuServiceTest", (): void => {
         await testee.createContextMenus();
 
         browserContextMenuServiceMock.received(1).addContextMenu({
+            id: ContextMenuItemId.create(Action.DOWNLOAD, DOWNLOADER_EMPTY.id),
             title: DOWNLOAD_TITLE,
             action: Action.DOWNLOAD,
-            urlPatterns: [URL],
-            onclick: ACTION_FUNCTION_MOCK
+            urlPatterns: [URL]
         });
         browserContextMenuServiceMock.received(1).addContextMenu(Arg.any());
+    });
+
+    test("testRegisterContextMenuClickListener", async (): Promise<void> => {
+        const clickAction = jest.fn();
+        const tab = <Tabs.Tab>{index: 0};
+        const info = <OnClickData>{menuItemId: ContextMenuItemId.create(Action.DOWNLOAD, DOWNLOADER.id)};
+
+        let registeredListener: ContextOnClickAction = null;
+        browserContextMenuServiceMock.addOnClickListener(Arg.any()).mimicks((listener: ContextOnClickAction): void => {
+            registeredListener = listener;
+        });
+        contextMenuActionServiceMock.getMenuItemAction(Arg.all()).returns(clickAction);
+
+        testee.registerContextMenuClickListener();
+
+        await registeredListener(info, tab);
+
+        contextMenuActionServiceMock.received(1).getMenuItemAction(Action.DOWNLOAD, DOWNLOADER.id);
+        expect(clickAction).toHaveBeenCalledWith(info, tab);
+    });
+
+    test("testRegisterContextMenuClickListenerWithUnknownItem", async (): Promise<void> => {
+        const info = <OnClickData>{menuItemId: "unknown"};
+
+        let registeredListener: ContextOnClickAction = null;
+        browserContextMenuServiceMock.addOnClickListener(Arg.any()).mimicks((listener: ContextOnClickAction): void => {
+            registeredListener = listener;
+        });
+
+        testee.registerContextMenuClickListener();
+
+        await registeredListener(info, <Tabs.Tab>{index: 0});
+
+        contextMenuActionServiceMock.didNotReceive().getMenuItemAction(Arg.all());
     });
 });
